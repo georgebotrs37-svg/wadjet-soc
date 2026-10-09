@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090e18">
+  <title>Demo Access | MR.X TIP SOC</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+    :root {
+      color-scheme: dark;
+      --bg: #090e18;
+      --surface: #111a27;
+      --border: rgba(153,176,207,.14);
+      --text: #e8eef7;
+      --muted: #8998ad;
+      --blue: #5b9cff;
+      --cyan: #58d5e5;
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      display: grid;
+      min-height: 100vh;
+      place-items: center;
+      margin: 0;
+      background:
+        radial-gradient(ellipse at 50% 4%, rgba(53,103,173,.18), transparent 48%),
+        radial-gradient(ellipse at 0% 100%, rgba(39,111,122,.08), transparent 35%),
+        var(--bg);
+      color: var(--text);
+      font-family: inherit;
+      -webkit-font-smoothing: antialiased;
+      padding: 24px;
+    }
+    .login-shell { width: min(100%, 416px); }
+    .language-row { display: flex; justify-content: flex-end; margin-bottom: 12px; }
+    .language-button {
+      min-height: 30px; border: 1px solid var(--border); border-radius: 6px;
+      background: rgba(255,255,255,.025); color: #a9b9cb; padding: 0 10px;
+      font: inherit; font-size: 10px; font-weight: 600; cursor: pointer;
+    }
+    .brand { display: flex; align-items: center; justify-content: center; gap: 11px; margin-bottom: 25px; }
+    .brand-mark {
+      display: grid; width: 39px; height: 39px; place-items: center;
+      border: 1px solid rgba(91,156,255,.34); border-radius: 11px;
+      background: linear-gradient(145deg, rgba(91,156,255,.18), rgba(88,213,229,.06));
+      color: #87b9ff; box-shadow: 0 4px 20px rgba(49,107,184,.12);
+    }
+    .brand-mark svg { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .brand-name { font: 700 16px 'Space Grotesk', sans-serif; letter-spacing: .025em; }
+    .brand-caption { margin-top: 3px; color: #78889d; font-size: 9px; font-weight: 600; letter-spacing: .15em; }
+    .card {
+      border: 1px solid var(--border); border-radius: 12px;
+      background: linear-gradient(145deg, rgba(19,29,43,.96), rgba(13,21,32,.97));
+      box-shadow: 0 20px 65px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.025);
+      padding: 26px;
+    }
+    .eyebrow { display: flex; align-items: center; gap: 7px; color: #82a9d8; font-size: 9px; font-weight: 600; letter-spacing: .11em; text-transform: uppercase; }
+    .eyebrow-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--blue); box-shadow: 0 0 9px rgba(91,156,255,.55); }
+    h1 { margin: 12px 0 5px; font: 600 23px 'Space Grotesk', sans-serif; letter-spacing: -.04em; }
+    .subtitle { color: var(--muted); font-size: 11px; line-height: 1.6; }
+    form { display: grid; gap: 15px; margin-top: 24px; }
+    label { display: grid; gap: 7px; }
+    .field-label { color: #b9c5d4; font-size: 10px; font-weight: 500; }
+    input {
+      width: 100%; height: 39px; border: 1px solid rgba(153,176,207,.18); border-radius: 6px;
+      background: #0b131e; color: var(--text); padding: 0 11px; font: inherit; font-size: 11px;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input::placeholder { color: #627187; }
+    input[type="email"], input[type="password"] { direction: ltr; text-align: left; }
+    input:focus { border-color: rgba(91,156,255,.65); outline: none; box-shadow: 0 0 0 3px rgba(91,156,255,.1); }
+    .submit {
+      display: inline-flex; height: 39px; align-items: center; justify-content: center; gap: 8px;
+      margin-top: 2px; border: 1px solid rgba(91,156,255,.38); border-radius: 7px;
+      background: linear-gradient(180deg,#3979d2,#2d68bd); color: #f4f8ff;
+      box-shadow: 0 4px 14px rgba(37,99,180,.16); font-family: inherit; font-size: 11px; font-weight: 600; cursor: pointer;
+      transition: filter .15s, transform .15s;
+    }
+    .submit:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    .submit:disabled { cursor: wait; opacity: .65; transform: none; }
+    .error {
+      display: none; border: 1px solid rgba(241,109,115,.18); border-radius: 6px;
+      background: rgba(241,109,115,.07); color: #ef9a9e; padding: 9px 10px;
+      font-size: 10px; line-height: 1.5;
+    }
+    .error.show { display: block; }
+    .security-note { display: flex; justify-content: center; align-items: center; gap: 6px; margin-top: 16px; color: #6d7d91; font-size: 9px; }
+    .security-note svg { fill: none; stroke: var(--cyan); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+    @media (max-width: 480px) { .card { padding: 21px 18px; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; } }
+    [dir="rtl"] body { font-family: Tahoma, Arial, sans-serif; }
+    [dir="rtl"] .field-label { text-align: right; }
+  </style>
+</head>
+<body>
+  <main class="login-shell">
+    <div class="language-row"><button class="language-button" id="language-toggle" type="button">العربية</button></div>
+    <div class="brand">
+      <div class="brand-mark"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 3 20 6v5.5c0 5-3.4 8.5-8 10.5-4.6-2-8-5.5-8-10.5V6l8-3Z"/><path d="m9 12 2 2 4-4"/></svg></div>
+      <div><div class="brand-name">MR.X <span style="color:#62758f;font-weight:400">|</span> TIP</div><div class="brand-caption">THREAT INTELLIGENCE PLATFORM</div></div>
+    </div>
+    <section class="card" aria-labelledby="login-title">
+      <div class="eyebrow"><span class="eyebrow-dot"></span>Portfolio preview · Demo access</div>
+      <h1 id="login-title">Welcome back</h1>
+      <div class="subtitle">Explore the SOC dashboard with sample data. No account or password is needed.</div>
+      <div class="error" id="login-error" role="alert"></div>
+      <button class="submit" id="enter-demo" type="button">Enter demo dashboard</button>
+    </section>
+    <div class="security-note"><svg width="13" height="13" viewBox="0 0 24 24"><path d="M12 3 20 6v5.5c0 5-3.4 8.5-8 10.5-4.6-2-8-5.5-8-10.5V6l8-3Z"/><path d="m9 12 2 2 4-4"/></svg>Demo only · Sample data · No real authentication</div>
+  </main>
+  <script>
+    const errorBox = document.querySelector('#login-error');
+    const loginTranslations = {
+      'Portfolio preview · Demo access': 'معاينة للملف · دخول تجريبي',
+      'THREAT INTELLIGENCE PLATFORM': 'منصة استخبارات التهديدات',
+      'Welcome back': 'مرحبًا بعودتك',
+      'Explore the SOC dashboard with sample data. No account or password is needed.': 'استكشف لوحة مركز العمليات باستخدام بيانات تجريبية. لا حاجة إلى حساب أو كلمة مرور.',
+      'Enter demo dashboard': 'الدخول إلى لوحة العرض التجريبي',
+      'Demo only · Sample data · No real authentication': 'للعرض التجريبي فقط · بيانات تجريبية · لا يوجد تحقق حقيقي',
+      'Switch language to Arabic': 'تغيير اللغة إلى العربية',
+      'Switch language to English': 'تغيير اللغة إلى الإنجليزية',
+      'Could not enable demo access because browser storage is unavailable.': 'تعذر تفعيل العرض التجريبي لأن مساحة تخزين المتصفح غير متاحة.'
+    };
+    let loginLanguage = (() => {
+      try {
+        return localStorage.getItem('mrx-soc-language') === 'ar' ? 'ar' : 'en';
+      } catch (error) {
+        console.warn('Could not read the saved language preference.', error);
+        return 'en';
+      }
+    })();
+    const loginOriginalText = new WeakMap();
+    const loginOriginalAttributes = new WeakMap();
+
+    function translateLogin(value) {
+      return loginLanguage === 'ar' ? (loginTranslations[value] || value) : value;
+    }
+
+    function applyLoginLanguage() {
+      document.documentElement.lang = loginLanguage;
+      document.documentElement.dir = loginLanguage === 'ar' ? 'rtl' : 'ltr';
+      document.title = loginLanguage === 'ar' ? 'الدخول التجريبي | MR.X TIP SOC' : 'Demo Access | MR.X TIP SOC';
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+      let node;
+      while ((node = walker.nextNode())) {
+        if (!loginOriginalText.has(node)) loginOriginalText.set(node, node.nodeValue);
+        const original = loginOriginalText.get(node);
+        const key = original.trim();
+        if (loginLanguage === 'ar' && loginTranslations[key]) node.nodeValue = original.replace(key, loginTranslations[key]);
+        else if (loginLanguage === 'en') node.nodeValue = original;
+      }
+      document.querySelectorAll('[placeholder], [aria-label], [title]').forEach((element) => {
+        let originals = loginOriginalAttributes.get(element);
+        if (!originals) {
+          originals = {};
+          loginOriginalAttributes.set(element, originals);
+        }
+        ['placeholder', 'aria-label', 'title'].forEach((attribute) => {
+          if (!element.hasAttribute(attribute)) return;
+          if (!(attribute in originals)) originals[attribute] = element.getAttribute(attribute);
+          element.setAttribute(attribute, translateLogin(originals[attribute]));
+        });
+      });
+      document.querySelector('#language-toggle').textContent = loginLanguage === 'ar' ? 'English' : 'العربية';
+      document.querySelector('#language-toggle').setAttribute('aria-label', translateLogin(loginLanguage === 'ar' ? 'Switch language to English' : 'Switch language to Arabic'));
+    }
+
+    document.querySelector('#language-toggle').addEventListener('click', () => {
+      loginLanguage = loginLanguage === 'ar' ? 'en' : 'ar';
+      try {
+        localStorage.setItem('mrx-soc-language', loginLanguage);
+      } catch (error) {
+        console.warn('Could not save the language preference.', error);
+      }
+      applyLoginLanguage();
+    });
+    applyLoginLanguage();
+
+    document.querySelector('#enter-demo').addEventListener('click', (event) => {
+      const button = event.currentTarget;
+      button.disabled = true;
+      try {
+        localStorage.setItem('mrx-soc-demo-session', 'active');
+        window.location.replace('./index.html');
+      } catch (error) {
+        console.error('Could not start the demo session.', error);
+        errorBox.textContent = translateLogin('Could not enable demo access because browser storage is unavailable.');
+        errorBox.classList.add('show');
+        button.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

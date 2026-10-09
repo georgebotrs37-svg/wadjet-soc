@@ -1,0 +1,1852 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090e18">
+  <title>MR.X | TIP SOC Dashboard</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+    :root {
+      color-scheme: dark;
+      --bg: #090e18;
+      --sidebar: #0b111c;
+      --surface: #101825;
+      --surface-raised: #131d2b;
+      --surface-soft: #0d1521;
+      --border: rgba(153, 176, 207, .11);
+      --border-strong: rgba(153, 176, 207, .18);
+      --text: #e8eef7;
+      --muted: #8593a7;
+      --faint: #59687d;
+      --blue: #5b9cff;
+      --cyan: #58d5e5;
+      --green: #56c99a;
+      --orange: #f0a65a;
+      --red: #f16d73;
+      --font: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --display: 'Space Grotesk', var(--font);
+    }
+
+    * { box-sizing: border-box; }
+    html { min-width: 320px; background: var(--bg); }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(ellipse at 84% -18%, rgba(47, 89, 148, .14), transparent 38%),
+        var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 13px;
+      -webkit-font-smoothing: antialiased;
+    }
+    button, input, select { font: inherit; }
+    button { color: inherit; }
+    button:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 2px solid rgba(91, 156, 255, .75);
+      outline-offset: 2px;
+    }
+    .brand-mark svg, .nav-item svg, .search svg, .icon-button svg, .primary-button svg,
+    .row-action svg, .close-button svg, .toast svg, .threat-icon svg {
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .app { min-height: 100vh; }
+    .sidebar {
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 5;
+      display: flex;
+      width: 238px;
+      flex-direction: column;
+      border-right: 1px solid var(--border);
+      background: rgba(11, 17, 28, .96);
+      padding: 23px 15px 16px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 2px 9px 25px;
+    }
+    .brand-mark {
+      display: grid;
+      width: 37px;
+      height: 37px;
+      place-items: center;
+      border: 1px solid rgba(91, 156, 255, .32);
+      border-radius: 11px;
+      background: linear-gradient(145deg, rgba(91, 156, 255, .18), rgba(88, 213, 229, .07));
+      color: #87b9ff;
+      box-shadow: 0 4px 18px rgba(49, 107, 184, .11);
+    }
+    .brand-name { font: 700 16px var(--display); letter-spacing: .025em; }
+    .brand-caption {
+      margin-top: 3px;
+      color: #7f8da1;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: .15em;
+    }
+    .nav-label {
+      margin: 13px 10px 9px;
+      color: #5f6d81;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+    }
+    .nav-list { display: grid; gap: 4px; }
+    .nav-list > [hidden], .content > [hidden], .lower-grid > [hidden] { display: none !important; }
+    .nav-item {
+      display: flex;
+      width: 100%;
+      height: 39px;
+      align-items: center;
+      gap: 11px;
+      border: 1px solid transparent;
+      border-radius: 7px;
+      background: transparent;
+      color: #91a0b3;
+      cursor: pointer;
+      padding: 0 11px;
+      text-align: left;
+      transition: color .18s, background .18s, border-color .18s;
+    }
+    .nav-item:hover { background: rgba(255,255,255,.035); color: #d8e2ef; }
+    .nav-item.active {
+      border-color: rgba(91, 156, 255, .15);
+      background: linear-gradient(90deg, rgba(91,156,255,.13), rgba(91,156,255,.04));
+      color: #a6caff;
+    }
+    .nav-item.active::before {
+      position: absolute;
+      left: 0;
+      width: 2px;
+      height: 25px;
+      border-radius: 0 2px 2px 0;
+      background: var(--blue);
+      content: "";
+    }
+    .nav-item svg { flex: 0 0 auto; opacity: .83; }
+    .nav-item span { font-size: 11.5px; font-weight: 500; }
+    .nav-count {
+      display: grid;
+      min-width: 19px;
+      height: 19px;
+      place-items: center;
+      margin-left: auto;
+      border-radius: 5px;
+      background: rgba(241, 109, 115, .11);
+      color: #f28a8f;
+      font-size: 10px;
+      font-weight: 600;
+    }
+    .sidebar-spacer { flex: 1; }
+    .system-card {
+      margin: 0 2px 12px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: rgba(255,255,255,.018);
+      padding: 12px;
+    }
+    .system-title { color: #8b9aae; font-size: 10px; font-weight: 600; }
+    .system-line { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+    .system-line .pulse-dot { background: var(--blue); box-shadow: 0 0 0 3px rgba(91,156,255,.1), 0 0 11px rgba(91,156,255,.3); }
+    .pulse-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 3px rgba(86,201,154,.1), 0 0 11px rgba(86,201,154,.3);
+    }
+    .system-status { color: #b2c1d2; font-size: 10px; }
+    .system-uptime { margin-left: auto; color: #66778d; font-size: 9px; }
+    .sidebar-footer {
+      display: flex; align-items: center; gap: 8px;
+      border-top: 1px solid var(--border);
+      padding: 13px 8px 2px;
+      color: #627187;
+      font-size: 9px;
+    }
+    .footer-brand { color: #9aa8ba; font-weight: 600; }
+    .footer-version { margin-left: auto; }
+
+    .main { min-height: 100vh; margin-left: 238px; }
+    .topbar {
+      position: sticky;
+      z-index: 4;
+      top: 0;
+      display: flex;
+      height: 62px;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      background: rgba(9, 14, 24, .88);
+      padding: 0 30px;
+      backdrop-filter: blur(18px);
+    }
+    .breadcrumb { display: flex; align-items: center; gap: 9px; color: #68778c; font-size: 11px; }
+    .breadcrumb strong { color: #c9d3e0; font-weight: 500; }
+    .top-actions { display: flex; align-items: center; gap: 16px; }
+    .language-button {
+      min-height: 30px; border: 1px solid var(--border); border-radius: 6px;
+      background: rgba(255,255,255,.025); color: #a9b9cb; padding: 0 9px;
+      font-size: 9px; font-weight: 600; cursor: pointer; white-space: nowrap;
+    }
+    .language-button:hover { border-color: rgba(91,156,255,.32); color: #cfe0f5; }
+    .search {
+      display: flex; width: 226px; height: 33px; align-items: center; gap: 8px;
+      border: 1px solid var(--border); border-radius: 7px;
+      background: rgba(255,255,255,.025); padding: 0 9px;
+      color: #718198;
+    }
+    .search input { width: 100%; border: 0; outline: 0; background: transparent; color: var(--text); font-size: 10px; }
+    .search input::placeholder { color: #6c7a8e; }
+    .shortcut { border: 1px solid var(--border); border-radius: 4px; padding: 2px 4px; color: #6d7b8f; font-size: 9px; white-space: nowrap; }
+    .icon-button {
+      position: relative; display: grid; width: 31px; height: 31px; place-items: center;
+      border: 1px solid transparent; border-radius: 7px; background: transparent;
+      color: #94a2b5; cursor: pointer;
+    }
+    .icon-button:hover { border-color: var(--border); background: rgba(255,255,255,.035); }
+    .notification-dot { position: absolute; top: 6px; right: 7px; width: 5px; height: 5px; border: 1px solid var(--bg); border-radius: 50%; background: var(--orange); }
+    .top-divider { height: 24px; border-left: 1px solid var(--border); }
+    .environment {
+      display: flex; align-items: center; gap: 7px; border: 1px solid rgba(86,201,154,.14);
+      border-radius: 6px; background: rgba(86,201,154,.055); padding: 6px 9px;
+      color: #a9cbbb; font-size: 10px; font-weight: 500;
+    }
+    .environment .pulse-dot { width: 6px; height: 6px; box-shadow: none; }
+    .profile { display: flex; align-items: center; gap: 8px; }
+    .avatar {
+      display: grid; width: 29px; height: 29px; place-items: center; border: 1px solid rgba(91,156,255,.24);
+      border-radius: 8px; background: linear-gradient(140deg, #1c3452, #172233); color: #a9cbff;
+      font: 700 10px var(--display);
+    }
+    .profile-name { color: #d8e0eb; font-size: 10px; font-weight: 600; }
+    .profile-role { margin-top: 2px; color: #748399; font-size: 9px; }
+    .content { max-width: 1800px; margin: 0 auto; padding: 22px 30px 28px; }
+    .page-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+    .eyebrow { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; color: #7889a0; font-size: 9px; font-weight: 600; letter-spacing: .105em; text-transform: uppercase; }
+    .eyebrow-mark { width: 5px; height: 5px; border-radius: 50%; background: var(--blue); box-shadow: 0 0 8px rgba(91,156,255,.5); }
+    h1 { margin: 0; font: 600 24px/1.2 var(--display); letter-spacing: -.045em; }
+    .subtitle { margin-top: 5px; color: #8593a7; font-size: 11px; }
+    .heading-actions { display: flex; align-items: center; gap: 10px; }
+    .date-range {
+      height: 34px; border: 1px solid var(--border); border-radius: 7px; background: rgba(255,255,255,.025);
+      color: #abb9c9; padding: 0 10px; font-size: 10px; cursor: pointer;
+    }
+    .primary-button {
+      display: inline-flex; height: 34px; align-items: center; justify-content: center; gap: 7px;
+      border: 1px solid rgba(91,156,255,.36); border-radius: 7px;
+      background: linear-gradient(180deg, #3979d2, #2d68bd); color: #f4f8ff;
+      box-shadow: 0 4px 13px rgba(37,99,180,.16); padding: 0 12px;
+      font-size: 10px; font-weight: 600; cursor: pointer; transition: filter .18s, transform .18s;
+    }
+    .primary-button:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    .section-label { margin-bottom: 8px; color: #687a91; font-size: 9px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    .stats-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 11px; }
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: linear-gradient(145deg, rgba(19,29,43,.88), rgba(15,23,35,.9));
+      box-shadow: 0 7px 22px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.016);
+    }
+    .stat-card { position: relative; min-height: 91px; overflow: hidden; padding: 12px 13px 10px; }
+    .stat-card::after { position: absolute; top: 0; right: 0; width: 55px; height: 55px; border-radius: 50%; background: var(--glow, rgba(91,156,255,.08)); filter: blur(24px); content: ""; }
+    .stat-top { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; }
+    .stat-label { color: #99a6b8; font-size: 10px; font-weight: 500; }
+    .stat-icon { display: grid; width: 25px; height: 25px; place-items: center; border: 1px solid var(--icon-border, rgba(91,156,255,.15)); border-radius: 7px; background: var(--icon-bg, rgba(91,156,255,.07)); color: var(--icon-color, #80b5ff); }
+    .stat-bottom { position: relative; z-index: 1; display: flex; align-items: baseline; gap: 8px; margin-top: 7px; }
+    .stat-value { font: 600 22px/1 var(--display); letter-spacing: -.04em; }
+    .stat-change { color: #79c9a6; font-size: 9px; }
+    .stat-note { margin-top: 5px; color: #68778b; font-size: 9px; }
+    .stat-card.critical { --glow: rgba(241,109,115,.11); --icon-border: rgba(241,109,115,.18); --icon-bg: rgba(241,109,115,.08); --icon-color: #f18b90; }
+    .stat-card.orange { --glow: rgba(240,166,90,.1); --icon-border: rgba(240,166,90,.17); --icon-bg: rgba(240,166,90,.07); --icon-color: #eab274; }
+    .stat-card.green { --glow: rgba(86,201,154,.11); --icon-border: rgba(86,201,154,.17); --icon-bg: rgba(86,201,154,.07); --icon-color: #77d0aa; }
+    .stat-card.cyan { --glow: rgba(88,213,229,.1); --icon-border: rgba(88,213,229,.18); --icon-bg: rgba(88,213,229,.07); --icon-color: #69d5e0; }
+
+    .siem-section { margin-top: 17px; }
+    .siem-section-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+    .siem-section-copy { margin-top: 3px; color: #78889d; font-size: 9px; }
+    .refresh-button {
+      display: inline-flex; min-height: 29px; align-items: center; gap: 7px;
+      border: 1px solid var(--border-strong); border-radius: 6px;
+      background: rgba(255,255,255,.025); color: #aab9ca; padding: 0 9px;
+      font-size: 9px; cursor: pointer; transition: background .15s, border-color .15s;
+    }
+    .refresh-button:hover { border-color: rgba(91,156,255,.3); background: rgba(91,156,255,.06); }
+    .refresh-button:disabled { cursor: wait; opacity: .65; }
+    .refresh-button svg { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .provider-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
+    .provider-card { position: relative; overflow: hidden; min-height: 83px; padding: 12px 14px; }
+    .provider-card::after { position: absolute; top: -25px; right: 9%; width: 68px; height: 68px; border-radius: 50%; background: rgba(91,156,255,.075); filter: blur(27px); content: ""; }
+    .provider-card[data-status="connected"]::after { background: rgba(86,201,154,.1); }
+    .provider-card[data-status="error"]::after { background: rgba(241,109,115,.09); }
+    .provider-top, .provider-bottom { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 9px; }
+    .provider-identity { display: flex; align-items: center; gap: 9px; }
+    .provider-mark { display: grid; width: 29px; height: 29px; place-items: center; border: 1px solid rgba(91,156,255,.16); border-radius: 8px; background: rgba(91,156,255,.07); color: #8bbaff; font: 700 9px var(--display); }
+    .provider-name { color: #e0e8f2; font-size: 10px; font-weight: 600; }
+    .provider-kind { margin-top: 3px; color: #77879b; font-size: 8px; }
+    .provider-state { display: inline-flex; align-items: center; gap: 5px; color: #8998ac; font-size: 8px; font-weight: 600; }
+    .provider-state::before { width: 5px; height: 5px; border-radius: 50%; background: #718096; content: ""; }
+    .provider-card[data-status="connected"] .provider-state { color: #8bd3af; }
+    .provider-card[data-status="connected"] .provider-state::before { background: #56c99a; box-shadow: 0 0 8px rgba(86,201,154,.45); }
+    .provider-card[data-status="error"] .provider-state { color: #ef999d; }
+    .provider-card[data-status="error"] .provider-state::before { background: #f16d73; }
+    .provider-card[data-status="demo"] .provider-state { color: #8fbaff; }
+    .provider-card[data-status="demo"] .provider-state::before { background: #5b9cff; }
+    .provider-bottom { margin: 8px 0 0 38px; color: #708197; font-size: 8px; }
+    .provider-message { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .provider-count { flex: 0 0 auto; color: #b9c7d8; font-weight: 600; }
+    .siem-alerts { margin-top: 11px; overflow: hidden; padding: 0; }
+    .siem-alerts .table-head { min-height: 49px; }
+    .siem-empty { color: #8796aa; padding: 20px 14px; font-size: 9px; text-align: center; }
+    .provider-badge { display: inline-flex; border: 1px solid rgba(91,156,255,.14); border-radius: 4px; background: rgba(91,156,255,.06); color: #91baff; padding: 3px 6px; font-size: 8px; font-weight: 600; }
+    .provider-badge.splunk { border-color: rgba(88,213,229,.14); background: rgba(88,213,229,.055); color: #78ced8; }
+    .siem-event { max-width: 320px; overflow: hidden; color: #d2dce9; text-overflow: ellipsis; }
+    .siem-agent { color: #94a4b8; }
+    .siem-technique { color: #8fb0da; font: 9px var(--display); }
+
+    .lower-grid[data-focus="incidents"], .lower-grid[data-focus="threat"] { grid-template-columns: minmax(0, 1fr); }
+    .workspace-section { margin-top: 17px; }
+    .workspace-panel { padding: 16px; }
+    .workspace-heading { margin-bottom: 13px; }
+    .workspace-heading h2 { margin: 0; font: 600 15px var(--display); letter-spacing: -.02em; }
+    .workspace-heading p { margin: 5px 0 0; color: #8291a5; font-size: 10px; }
+    .workspace-table { overflow: hidden; margin-top: 12px; }
+    .workspace-empty { color: #8593a7; padding: 22px 14px; font-size: 10px; text-align: center; }
+    .nav-settings-list { display: grid; gap: 8px; margin-top: 12px; }
+    .nav-setting-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 10px; border: 1px solid var(--border); border-radius: 7px; background: rgba(255,255,255,.018); padding: 8px 10px; }
+    .nav-setting-name { color: #c7d3e2; font-size: 10px; }
+    .nav-setting-lock { color: #718096; font-size: 9px; }
+    .nav-setting-actions { display: flex; gap: 5px; }
+    .nav-setting-actions button { width: 27px; height: 26px; border: 1px solid var(--border); border-radius: 5px; background: rgba(255,255,255,.025); color: #aab9ca; cursor: pointer; }
+    .nav-setting-actions button:disabled { cursor: not-allowed; opacity: .35; }
+    .nav-setting-toggle { display: flex; align-items: center; gap: 6px; color: #94a3b7; font-size: 9px; white-space: nowrap; }
+    .nav-setting-toggle input { accent-color: var(--blue); }
+    .settings-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 13px; }
+    .settings-note { color: #74849a; font-size: 9px; line-height: 1.6; }
+    .timeline-list { display: grid; gap: 0; }
+    .timeline-entry { display: grid; grid-template-columns: 110px 12px minmax(0, 1fr); gap: 11px; min-height: 66px; }
+    .timeline-time { color: #8695a9; padding-top: 2px; font-size: 9px; }
+    .timeline-marker { position: relative; display: flex; justify-content: center; }
+    .timeline-marker::before { position: absolute; top: 4px; bottom: -4px; width: 1px; background: var(--border-strong); content: ""; }
+    .timeline-marker::after { position: relative; z-index: 1; width: 7px; height: 7px; border: 2px solid #17263a; border-radius: 50%; background: var(--blue); box-shadow: 0 0 0 1px rgba(91,156,255,.4); content: ""; }
+    .timeline-entry[data-severity="Critical"] .timeline-marker::after { background: var(--red); }
+    .timeline-entry[data-severity="High"] .timeline-marker::after { background: var(--orange); }
+    .timeline-entry-copy { padding-bottom: 13px; }
+    .timeline-title { color: #d4deeb; font-size: 10px; font-weight: 600; }
+    .timeline-meta { margin-top: 4px; color: #8190a4; font-size: 9px; }
+    .timeline-source { color: #6e9fdd; }
+
+    .analytics-grid { display: grid; grid-template-columns: 1.18fr 1.85fr 1fr; gap: 11px; margin-top: 16px; }
+    .panel { min-width: 0; padding: 13px 14px; }
+    .panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .panel-title { color: #d9e2ed; font-size: 11px; font-weight: 600; }
+    .panel-caption { margin-top: 3px; color: #718097; font-size: 9px; }
+    .panel-select { border: 1px solid var(--border); border-radius: 5px; background: #121c2a; color: #8f9db0; padding: 5px 7px; font-size: 9px; }
+    .severity-content { display: flex; min-height: 151px; align-items: center; justify-content: space-around; gap: 10px; padding: 6px 0 0; }
+    .donut-wrap { position: relative; width: 120px; height: 120px; flex: 0 0 auto; }
+    .donut-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .donut-bg { fill: none; stroke: #1c2837; stroke-width: 10; }
+    .donut-segment { fill: none; stroke-width: 10; stroke-linecap: round; }
+    .donut-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .donut-number { font: 600 22px var(--display); letter-spacing: -.04em; }
+    .donut-caption { margin-top: 1px; color: #78879b; font-size: 8px; }
+    .legend { display: grid; gap: 11px; min-width: 94px; }
+    .legend-row { display: flex; align-items: center; gap: 7px; color: #9caabe; font-size: 9px; }
+    .legend-dot { width: 6px; height: 6px; border-radius: 50%; }
+    .legend-row b { margin-left: auto; color: #d5dfec; font-size: 9px; font-weight: 600; }
+    .trend-panel { padding-bottom: 10px; }
+    .trend-summary { display: flex; align-items: baseline; gap: 8px; margin-top: 9px; }
+    .trend-value { font: 600 20px var(--display); letter-spacing: -.04em; }
+    .trend-change { color: #78cba4; font-size: 9px; }
+    .chart-wrap { position: relative; height: 111px; margin-top: 4px; }
+    .chart-wrap svg { display: block; width: 100%; height: 100%; overflow: visible; }
+    .chart-grid { stroke: rgba(149,169,196,.1); stroke-width: 1; }
+    .chart-area { fill: url(#areaFill); }
+    .chart-line { fill: none; stroke: #65a5ff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .chart-line-secondary { fill: none; stroke: #50c9d5; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; opacity: .78; }
+    .chart-axis { fill: #69788d; font: 8px var(--font); }
+    .chart-tooltip-dot { fill: #89baff; stroke: #162437; stroke-width: 3; }
+    .chart-legend { display: flex; gap: 14px; margin: 4px 0 0 28px; }
+    .chart-legend .legend-row { font-size: 8px; }
+    .status-bars { display: grid; gap: 13px; margin-top: 18px; }
+    .status-line { display: grid; grid-template-columns: 70px 1fr 25px; align-items: center; gap: 8px; }
+    .status-name { color: #9ca9bb; font-size: 9px; }
+    .bar-track { height: 5px; overflow: hidden; border-radius: 5px; background: #202b39; }
+    .bar-fill { height: 100%; border-radius: inherit; }
+    .status-count { color: #d3dce8; font-size: 9px; text-align: right; }
+    .status-summary { display: flex; justify-content: space-between; margin-top: 17px; border-top: 1px solid var(--border); padding-top: 10px; color: #8190a5; font-size: 9px; }
+    .status-summary strong { color: #cbd7e6; font-weight: 600; }
+
+    .lower-grid { display: grid; grid-template-columns: minmax(0, 1fr) 270px; gap: 11px; margin-top: 16px; }
+    .incidents-panel { overflow: hidden; padding: 0; }
+    .table-head { display: flex; min-height: 53px; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding: 0 14px; }
+    .table-heading { display: flex; align-items: baseline; gap: 8px; }
+    .table-heading .panel-title { font-size: 11px; }
+    .table-count { color: #718198; font-size: 9px; }
+    .table-tools { display: flex; align-items: center; gap: 7px; }
+    .table-filter {
+      height: 27px; border: 1px solid var(--border); border-radius: 5px;
+      background: #121c2a; color: #99a7b9; padding: 0 8px; font-size: 9px;
+    }
+    .text-button { border: 0; background: transparent; color: #82b5ff; padding: 5px 4px; font-size: 9px; cursor: pointer; }
+    .table-scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; white-space: nowrap; }
+    th { height: 31px; border-bottom: 1px solid rgba(153,176,207,.07); background: rgba(255,255,255,.012); color: #77869b; padding: 0 10px; font-size: 8px; font-weight: 600; letter-spacing: .045em; text-align: left; text-transform: uppercase; }
+    th:first-child, td:first-child { padding-left: 14px; }
+    td { height: 42px; border-bottom: 1px solid rgba(153,176,207,.065); color: #aab6c6; padding: 0 10px; font-size: 9px; }
+    tbody tr { transition: background .15s; }
+    tbody tr:hover { background: rgba(91,156,255,.035); }
+    tbody tr:last-child td { border-bottom: 0; }
+    .incident-id { color: #8fbaff; font: 500 9px var(--display); }
+    .incident-title { color: #d5deea; font-size: 9px; font-weight: 500; }
+    .source { color: #97a5b8; }
+    .severity-badge, .status-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      border: 1px solid transparent; border-radius: 4px; padding: 3px 6px;
+      font-size: 8px; font-weight: 600;
+    }
+    .severity-badge::before, .status-badge::before { width: 5px; height: 5px; border-radius: 50%; background: currentColor; content: ""; }
+    .severity-critical { border-color: rgba(241,109,115,.13); background: rgba(241,109,115,.08); color: #ef858a; }
+    .severity-high { border-color: rgba(240,166,90,.14); background: rgba(240,166,90,.08); color: #eeb16f; }
+    .severity-medium { border-color: rgba(91,156,255,.14); background: rgba(91,156,255,.07); color: #8ebcff; }
+    .severity-low { border-color: rgba(86,201,154,.14); background: rgba(86,201,154,.07); color: #85d1ad; }
+    .status-investigating { border-color: rgba(91,156,255,.13); background: rgba(91,156,255,.065); color: #8cb9fa; }
+    .status-new { border-color: rgba(240,166,90,.14); background: rgba(240,166,90,.06); color: #e9b172; }
+    .status-contained { border-color: rgba(88,213,229,.14); background: rgba(88,213,229,.06); color: #76cbd6; }
+    .status-resolved { border-color: rgba(86,201,154,.14); background: rgba(86,201,154,.065); color: #80cda7; }
+    .technique { color: #93a6be; font: 9px var(--display); }
+    .timestamp { color: #8896a9; font-size: 8px; }
+    .row-action { display: grid; width: 25px; height: 25px; place-items: center; border: 1px solid transparent; border-radius: 5px; background: transparent; color: #8291a6; cursor: pointer; }
+    .row-action:hover { border-color: var(--border); background: rgba(255,255,255,.04); color: #c8d7e9; }
+    .empty-row { display: none; color: #8b9aaf; padding: 28px; text-align: center; }
+    .threat-panel { padding: 0; }
+    .threat-head { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding: 14px; }
+    .threat-title-wrap { display: flex; align-items: center; gap: 8px; }
+    .threat-icon { display: grid; width: 25px; height: 25px; place-items: center; border: 1px solid rgba(88,213,229,.14); border-radius: 7px; background: rgba(88,213,229,.06); color: #6ecbd7; }
+    .live-label { display: flex; align-items: center; gap: 5px; color: #7acaa7; font-size: 8px; }
+    .live-label .pulse-dot { width: 5px; height: 5px; box-shadow: none; }
+    .intel-list { display: grid; }
+    .intel-item { border-bottom: 1px solid rgba(153,176,207,.07); padding: 11px 14px 10px; }
+    .intel-item:last-child { border-bottom: 0; }
+    .intel-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .ioc { color: #d6e0ed; font: 500 10px var(--display); letter-spacing: .01em; }
+    .sample-tag { border: 1px solid rgba(91,156,255,.14); border-radius: 4px; background: rgba(91,156,255,.06); color: #86b6f7; padding: 2px 5px; font-size: 7px; font-weight: 600; letter-spacing: .06em; }
+    .intel-description { margin-top: 5px; color: #8c9aae; font-size: 9px; }
+    .intel-meta { display: flex; align-items: center; justify-content: space-between; gap: 5px; margin-top: 9px; color: #718197; font-size: 8px; }
+    .confidence { display: flex; align-items: center; gap: 5px; color: #9dacc0; }
+    .confidence-track { width: 40px; height: 3px; overflow: hidden; border-radius: 3px; background: #253141; }
+    .confidence-fill { height: 100%; border-radius: inherit; background: #58bca0; }
+    .intel-technique { margin-top: 7px; color: #7b8da4; font: 8px var(--display); }
+    .intel-footer { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border); padding: 10px 14px; color: #718198; font-size: 8px; }
+    .intel-footer strong { color: #a6b5c7; font-weight: 600; }
+    .toast {
+      position: fixed; right: 24px; bottom: 23px; z-index: 20;
+      display: flex; align-items: center; gap: 9px;
+      border: 1px solid rgba(86,201,154,.22); border-radius: 8px;
+      background: #15251f; box-shadow: 0 12px 35px rgba(0,0,0,.28);
+      color: #c8e7d9; padding: 11px 14px; font-size: 11px;
+      opacity: 0; transform: translateY(8px); pointer-events: none;
+      transition: opacity .2s, transform .2s;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.error { border-color: rgba(241,109,115,.28); background: #2a191e; color: #f1c4c6; }
+    .toast.error svg { color: var(--red) !important; }
+    .primary-button:disabled { cursor: wait; opacity: .65; transform: none; }
+    .modal-backdrop { position: fixed; inset: 0; z-index: 10; display: none; place-items: center; background: rgba(4,8,14,.68); backdrop-filter: blur(5px); padding: 18px; }
+    .modal-backdrop.open { display: grid; }
+    .modal { width: min(440px, 100%); border: 1px solid var(--border-strong); border-radius: 12px; background: #111a27; box-shadow: 0 22px 70px rgba(0,0,0,.5); padding: 21px; }
+    .modal-head { display: flex; align-items: flex-start; justify-content: space-between; }
+    .modal h2 { margin: 0; font: 600 17px var(--display); }
+    .modal-copy { margin-top: 5px; color: #8897aa; font-size: 10px; }
+    .close-button { display: grid; width: 27px; height: 27px; place-items: center; border: 1px solid var(--border); border-radius: 6px; background: transparent; color: #9cabbc; cursor: pointer; }
+    .form-grid { display: grid; gap: 13px; margin-top: 20px; }
+    .field-label { display: block; margin-bottom: 6px; color: #a9b6c6; font-size: 10px; font-weight: 500; }
+    .form-input, .form-select, .form-textarea { width: 100%; border: 1px solid var(--border-strong); border-radius: 6px; background: #0c1420; color: #dce5f0; padding: 9px 10px; font-size: 10px; }
+    .form-textarea { min-height: 70px; resize: vertical; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+    .secondary-button { height: 33px; border: 1px solid var(--border); border-radius: 6px; background: transparent; color: #a5b2c2; padding: 0 11px; font-size: 10px; cursor: pointer; }
+
+    @media (min-width: 1600px) {
+      .content { padding-right: 40px; padding-left: 40px; }
+      .topbar { padding-right: 40px; padding-left: 40px; }
+      .stat-card { min-height: 99px; padding: 14px 15px 11px; }
+      .analytics-grid { margin-top: 18px; }
+      .lower-grid { margin-top: 18px; grid-template-columns: minmax(0, 1fr) 290px; }
+      .panel { padding: 15px 17px; }
+      .incidents-panel, .threat-panel { padding: 0; }
+      .severity-content { min-height: 161px; }
+      .chart-wrap { height: 119px; }
+      td { height: 45px; }
+      .intel-item { padding-top: 13px; padding-bottom: 12px; }
+    }
+    @media (max-width: 1250px) {
+      .sidebar { width: 210px; }
+      .main { margin-left: 210px; }
+      .content { padding-right: 21px; padding-left: 21px; }
+      .topbar { padding-right: 21px; padding-left: 21px; }
+      .stats-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .analytics-grid { grid-template-columns: 1fr 1.5fr; }
+      .provider-grid { grid-template-columns: 1fr; }
+      .status-panel { grid-column: 1 / -1; }
+      .status-bars { grid-template-columns: repeat(4, 1fr); }
+      .status-line { grid-template-columns: 67px 1fr 22px; }
+      .status-summary { margin-top: 14px; }
+      .lower-grid { grid-template-columns: minmax(0, 1fr) 250px; }
+    }
+    @media (max-width: 920px) {
+      .sidebar { width: 62px; align-items: center; padding: 15px 7px; }
+      .brand { padding: 2px 0 23px; }
+      .brand-copy, .nav-label, .nav-item span, .nav-count, .system-card, .sidebar-footer { display: none; }
+      .nav-list { width: 100%; }
+      .nav-item { justify-content: center; padding: 0; }
+      .nav-item.active::before { left: -7px; }
+      .main { margin-left: 62px; }
+      .topbar { padding: 0 17px; }
+      .content { padding: 20px 17px; }
+      .lower-grid { grid-template-columns: 1fr; }
+      .threat-panel { display: grid; grid-template-columns: 1fr 1fr; }
+      .threat-head { grid-column: 1 / -1; }
+      .intel-item { border-right: 1px solid rgba(153,176,207,.07); }
+      .intel-footer { grid-column: 1 / -1; }
+    }
+    @media (max-width: 760px) {
+      .topbar { height: 54px; }
+      .breadcrumb { font-size: 10px; }
+      .top-actions { gap: 8px; }
+      .search { width: 32px; justify-content: center; border-color: transparent; background: transparent; padding: 0; }
+      .search input, .shortcut, .top-divider, .environment, .profile-copy { display: none; }
+      .profile { gap: 0; }
+      .content { padding: 18px 12px 24px; }
+      .page-heading { align-items: flex-start; gap: 12px; }
+      h1 { font-size: 20px; }
+      .subtitle { max-width: 255px; font-size: 10px; line-height: 1.5; }
+      .heading-actions { flex-direction: column-reverse; align-items: stretch; }
+      .date-range { display: none; }
+      .primary-button { white-space: nowrap; }
+      .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+      .stat-card { min-height: 87px; padding: 10px; }
+      .stat-label { font-size: 9px; }
+      .stat-value { font-size: 20px; }
+      .analytics-grid { grid-template-columns: 1fr; gap: 8px; }
+      .provider-grid { gap: 8px; }
+      .siem-section { margin-top: 13px; }
+      .siem-alerts .table-head { align-items: center; }
+      .status-panel { grid-column: auto; }
+      .status-bars { grid-template-columns: repeat(2, 1fr); gap: 11px; }
+      .severity-content { justify-content: center; gap: 24px; }
+      .lower-grid { margin-top: 10px; }
+      .table-head { align-items: flex-start; gap: 8px; padding: 12px; }
+      .table-heading { flex-direction: column; gap: 3px; }
+      .table-tools { flex-wrap: wrap; justify-content: flex-end; }
+      .table-filter { max-width: 92px; }
+      th, td { padding-right: 9px; padding-left: 9px; }
+      th:first-child, td:first-child { padding-left: 12px; }
+      .threat-panel { display: block; }
+      .intel-item { border-right: 0; }
+      .profile-name { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+    }
+    [dir="rtl"] body { font-family: Tahoma, Arial, sans-serif; }
+    [dir="rtl"] .sidebar { inset: 0 0 0 auto; border-right: 0; border-left: 1px solid var(--border); }
+    [dir="rtl"] .main { margin-right: 238px; margin-left: 0; }
+    [dir="rtl"] .nav-item.active::before { right: 0; left: auto; }
+    [dir="rtl"] .nav-count { margin-right: auto; margin-left: 0; }
+    [dir="rtl"] .system-uptime, [dir="rtl"] .footer-version { margin-right: auto; margin-left: 0; }
+    [dir="rtl"] th, [dir="rtl"] td { text-align: right; }
+    [dir="rtl"] th:first-child, [dir="rtl"] td:first-child { padding-right: 15px; padding-left: 11px; }
+    [dir="rtl"] .timeline-entry { grid-template-columns: 110px 12px minmax(0, 1fr); }
+    [dir="rtl"] .timeline-time { text-align: left; }
+    [dir="rtl"] .intel-item { text-align: right; }
+    [dir="rtl"] .nav-setting-row { text-align: right; }
+    @media (max-width: 1250px) {
+      [dir="rtl"] .main { margin-right: 210px; margin-left: 0; }
+    }
+    @media (max-width: 920px) {
+      [dir="rtl"] .main { margin-right: 62px; margin-left: 0; }
+      [dir="rtl"] .nav-item.active::before { right: -7px; left: auto; }
+    }
+  </style>
+</head>
+<body>
+  <svg aria-hidden="true" width="0" height="0" style="position:absolute">
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 20 6v5.5c0 5-3.4 8.5-8 10.5-4.6-2-8-5.5-8-10.5V6l8-3Z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3.5 21 20H3l9-16.5Z"/><path d="M12 9v4.5m0 3h.01"/></symbol>
+    <symbol id="i-radar" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 12 18.5 5.5M12 4v2m8 6h-2m-6 8v-2"/><circle cx="12" cy="12" r="2"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 19.5h16M6.5 16V11m5.5 5V5m5.5 11v-7"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1 1.4 1.1-1.5 2.6-1.7-.7a8 8 0 0 1-1.5.9l-.3 1.8h-3l-.3-1.8a8 8 0 0 1-1.5-.9l-1.7.7-1.5-2.6 1.4-1.1A7 7 0 0 1 9 13.3l-1.7-1 1.5-2.6 1.7.7a8 8 0 0 1 1.5-.9l.3-1.8h3l.3 1.8a8 8 0 0 1 1.5.9l1.7-.7 1.5 2.6-1.4 1.1a7 7 0 0 1-.5 1.6Z" transform="translate(-1 -1) scale(1.08)"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4 4"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Zm-8 12h4"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></symbol>
+    <symbol id="i-network" viewBox="0 0 24 24"><circle cx="6" cy="7" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="m8.3 8.1 2.5 7.1m5.1-7.4-2.8 7.3m-4.6-8.2 7 .1"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24"><path d="M10 17l5-5-5-5m5 5H3"/><path d="M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"/></symbol>
+  </svg>
+
+  <div class="app">
+    <aside class="sidebar" aria-label="Primary navigation">
+      <div class="brand">
+        <div class="brand-mark"><svg width="21" height="21"><use href="#i-shield"/></svg></div>
+        <div class="brand-copy">
+          <div class="brand-name">MR.X <span style="color:#62758f;font-weight:400">|</span> TIP</div>
+          <div class="brand-caption">THREAT INTELLIGENCE</div>
+        </div>
+      </div>
+      <div class="nav-label">Workspace</div>
+      <nav class="nav-list" id="workspace-nav">
+        <button class="nav-item active" data-nav="overview"><svg width="16" height="16"><use href="#i-grid"/></svg><span>Overview</span></button>
+        <button class="nav-item" data-nav="incidents"><svg width="16" height="16"><use href="#i-alert"/></svg><span>Security Incidents</span><span class="nav-count">0</span></button>
+        <button class="nav-item" data-nav="threat-intel"><svg width="16" height="16"><use href="#i-radar"/></svg><span>Threat Intelligence</span></button>
+        <button class="nav-item" data-nav="mitre"><svg width="16" height="16"><use href="#i-target"/></svg><span>MITRE ATT&amp;CK</span></button>
+        <button class="nav-item" data-nav="analytics"><svg width="16" height="16"><use href="#i-chart"/></svg><span>Security Analytics</span></button>
+        <button class="nav-item" data-nav="timeline"><svg width="16" height="16"><use href="#i-clock"/></svg><span>Investigation Timeline</span></button>
+        <button class="nav-item" data-nav="settings"><svg width="16" height="16"><use href="#i-settings"/></svg><span>Settings</span></button>
+      </nav>
+      <div class="sidebar-spacer"></div>
+      <div class="system-card">
+        <div class="system-title">Demo platform</div>
+        <div class="system-line"><span class="pulse-dot"></span><span class="system-status">Sample data · offline</span><span class="system-uptime">DEMO</span></div>
+      </div>
+      <div class="sidebar-footer"><span class="footer-brand">MR.X TIP</span><span>·</span><span>Enterprise</span><span class="footer-version">v2.8.1</span></div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="breadcrumb"><span>Workspace</span><svg width="12" height="12"><use href="#i-chevron"/></svg><strong id="breadcrumb-current">Overview</strong></div>
+        <div class="top-actions">
+          <label class="search"><svg width="15" height="15"><use href="#i-search"/></svg><input id="global-search" type="search" placeholder="Search incidents, indicators..." aria-label="Search incidents and indicators"><span class="shortcut">⌘ K</span></label>
+          <button class="language-button" id="language-toggle" type="button" aria-label="Switch language">العربية</button>
+          <button class="icon-button" id="notification-button" aria-label="Notifications"><svg width="16" height="16"><use href="#i-bell"/></svg><span class="notification-dot"></span></button>
+          <span class="top-divider"></span>
+          <div class="environment"><span class="pulse-dot"></span>Demo</div>
+          <div class="profile"><div class="avatar">MX</div><div class="profile-copy"><div class="profile-name">MR.X</div><div class="profile-role">Demo analyst</div></div></div>
+          <button class="icon-button" id="logout-button" aria-label="Exit demo" title="Exit demo"><svg width="16" height="16"><use href="#i-logout"/></svg></button>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="page-heading">
+          <div>
+            <div class="eyebrow"><span class="eyebrow-mark"></span>Security operations · Sample monitoring</div>
+            <h1>Security Operations Center</h1>
+            <div class="subtitle">Threat Monitoring, Incident Response &amp; Intelligence</div>
+          </div>
+          <div class="heading-actions">
+            <select class="date-range" id="time-range" aria-label="Dashboard time range">
+              <option>Last 24 hours</option><option>Last 7 days</option><option>Last 30 days</option>
+            </select>
+            <button class="primary-button" id="create-incident"><svg width="14" height="14"><use href="#i-plus"/></svg>Create Incident</button>
+          </div>
+        </section>
+
+        <section id="stats-section" aria-label="Security overview statistics">
+          <div class="section-label">Operational overview</div>
+          <div class="stats-grid">
+            <article class="card stat-card">
+              <div class="stat-top"><span class="stat-label">Total Incidents</span><span class="stat-icon"><svg width="14" height="14"><use href="#i-alert"/></svg></span></div>
+              <div class="stat-bottom"><span class="stat-value">1,284</span><span class="stat-change">↑ 8.2%</span></div>
+              <div class="stat-note">vs. previous 30 days</div>
+            </article>
+            <article class="card stat-card critical">
+              <div class="stat-top"><span class="stat-label">Critical Alerts</span><span class="stat-icon"><svg width="14" height="14"><use href="#i-alert"/></svg></span></div>
+              <div class="stat-bottom"><span class="stat-value">12</span><span class="stat-change" style="color:#72c9a2">↓ 16.7%</span></div>
+              <div class="stat-note">3 require immediate attention</div>
+            </article>
+            <article class="card stat-card orange">
+              <div class="stat-top"><span class="stat-label">Active Investigations</span><span class="stat-icon"><svg width="14" height="14"><use href="#i-radar"/></svg></span></div>
+              <div class="stat-bottom"><span class="stat-value">38</span><span class="stat-change" style="color:#eab274">↑ 4.1%</span></div>
+              <div class="stat-note">7 assigned to your team</div>
+            </article>
+            <article class="card stat-card green">
+              <div class="stat-top"><span class="stat-label">Resolved Incidents</span><span class="stat-icon"><svg width="14" height="14"><use href="#i-check"/></svg></span></div>
+              <div class="stat-bottom"><span class="stat-value">1,092</span><span class="stat-change">↑ 12.4%</span></div>
+              <div class="stat-note">85.0% resolution rate</div>
+            </article>
+            <article class="card stat-card cyan">
+              <div class="stat-top"><span class="stat-label">Mean Time to Respond</span><span class="stat-icon"><svg width="14" height="14"><use href="#i-clock"/></svg></span></div>
+              <div class="stat-bottom"><span class="stat-value">14<span style="font-size:14px">m</span> 32<span style="font-size:14px">s</span></span><span class="stat-change">↓ 9.3%</span></div>
+              <div class="stat-note">target under 20 minutes</div>
+            </article>
+            <article class="card stat-card">
+              <div class="stat-top"><span class="stat-label">Detection Accuracy</span><span class="stat-icon"><svg width="14" height="14"><use href="#i-target"/></svg></span></div>
+              <div class="stat-bottom"><span class="stat-value">98.6<span style="font-size:15px">%</span></span><span class="stat-change">↑ 1.2%</span></div>
+              <div class="stat-note">across active detection rules</div>
+            </article>
+          </div>
+        </section>
+
+        <section class="siem-section" id="siem-section" aria-label="Sample SIEM events">
+          <div class="siem-section-head">
+            <div><div class="section-label" style="margin:0">SIEM feed preview · sample data</div><div class="siem-section-copy">Simulated events only · Not connected to Wazuh or Splunk</div></div>
+            <button class="refresh-button" id="refresh-siem" type="button"><svg width="13" height="13" viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.5 9a7 7 0 0 1 11.6-2L20 12M4 12l2.9 5a7 7 0 0 0 11.6-2"/></svg>Refresh sample data</button>
+          </div>
+          <div class="provider-grid" id="siem-providers" aria-live="polite">
+            <article class="card provider-card" data-status="demo"><div class="provider-top"><div class="provider-identity"><span class="provider-mark">WZ</span><div><div class="provider-name">Wazuh Indexer</div><div class="provider-kind">Sample Wazuh alert data</div></div></div><span class="provider-state">Demo data</span></div><div class="provider-bottom"><span class="provider-message">Sample telemetry · not connected</span></div></article>
+            <article class="card provider-card" data-status="demo"><div class="provider-top"><div class="provider-identity"><span class="provider-mark">SP</span><div><div class="provider-name">Splunk</div><div class="provider-kind">Sample Splunk alert data</div></div></div><span class="provider-state">Demo data</span></div><div class="provider-bottom"><span class="provider-message">Sample telemetry · not connected</span></div></article>
+          </div>
+          <article class="card siem-alerts">
+            <div class="table-head">
+              <div class="table-heading"><span class="panel-title">Sample SIEM Alerts</span><span class="table-count" id="siem-alert-count">Sample data · not live</span></div>
+              <span class="table-count" id="siem-updated-at">Demo data</span>
+            </div>
+            <div class="table-scroll">
+              <table>
+                <thead><tr><th>Source</th><th>Time</th><th>Severity</th><th>Alert</th><th>Agent / Host</th><th>MITRE ATT&amp;CK</th><th>Source IP</th></tr></thead>
+                <tbody id="siem-alert-rows"></tbody>
+              </table>
+              <div class="siem-empty" id="siem-empty">Sample events are for demonstration only.</div>
+            </div>
+          </article>
+        </section>
+
+        <section class="analytics-grid" id="analytics-section" aria-label="Security analytics">
+          <article class="card panel">
+            <div class="panel-head">
+              <div><div class="panel-title">Severity Distribution</div><div class="panel-caption">Incidents by priority</div></div>
+              <button class="icon-button" aria-label="Severity chart options"><svg width="15" height="15"><use href="#i-more"/></svg></button>
+            </div>
+            <div class="severity-content">
+              <div class="donut-wrap" aria-label="Severity distribution: 12 critical, 46 high, 84 medium, 35 low">
+                <svg viewBox="0 0 120 120" role="img">
+                  <circle class="donut-bg" cx="60" cy="60" r="45"/>
+                  <circle class="donut-segment" cx="60" cy="60" r="45" stroke="#f16d73" stroke-dasharray="20 263" stroke-dashoffset="0"/>
+                  <circle class="donut-segment" cx="60" cy="60" r="45" stroke="#f0a65a" stroke-dasharray="72 211" stroke-dashoffset="-25"/>
+                  <circle class="donut-segment" cx="60" cy="60" r="45" stroke="#5b9cff" stroke-dasharray="130 153" stroke-dashoffset="-102"/>
+                  <circle class="donut-segment" cx="60" cy="60" r="45" stroke="#56c99a" stroke-dasharray="50 233" stroke-dashoffset="-238"/>
+                </svg>
+                <div class="donut-center"><span class="donut-number">177</span><span class="donut-caption">total alerts</span></div>
+              </div>
+              <div class="legend">
+                <div class="legend-row"><span class="legend-dot" style="background:#f16d73"></span>Critical <b>12</b></div>
+                <div class="legend-row"><span class="legend-dot" style="background:#f0a65a"></span>High <b>46</b></div>
+                <div class="legend-row"><span class="legend-dot" style="background:#5b9cff"></span>Medium <b>84</b></div>
+                <div class="legend-row"><span class="legend-dot" style="background:#56c99a"></span>Low <b>35</b></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="card panel trend-panel">
+            <div class="panel-head">
+              <div><div class="panel-title">Security Incident Trends</div><div class="panel-caption">Detected events over time</div></div>
+              <select class="panel-select" aria-label="Incident trend period"><option>Last 7 days</option><option>Last 30 days</option></select>
+            </div>
+            <div class="trend-summary"><span class="trend-value">2,846</span><span class="panel-caption">events this week</span><span class="trend-change">↓ 6.4% vs. prior week</span></div>
+            <div class="chart-wrap">
+              <svg viewBox="0 0 500 112" preserveAspectRatio="none" role="img" aria-label="Seven day incident trend, peaking Wednesday and Friday">
+                <defs><linearGradient id="areaFill" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#5b9cff" stop-opacity=".19"/><stop offset="1" stop-color="#5b9cff" stop-opacity="0"/></linearGradient></defs>
+                <line class="chart-grid" x1="33" y1="15" x2="495" y2="15"/><line class="chart-grid" x1="33" y1="42" x2="495" y2="42"/><line class="chart-grid" x1="33" y1="69" x2="495" y2="69"/><line class="chart-grid" x1="33" y1="94" x2="495" y2="94"/>
+                <text class="chart-axis" x="2" y="18">600</text><text class="chart-axis" x="2" y="45">400</text><text class="chart-axis" x="2" y="72">200</text><text class="chart-axis" x="9" y="97">0</text>
+                <path class="chart-area" d="M36 68 C58 65 70 47 99 51 S145 66 168 57 S215 28 238 34 S284 53 307 45 S353 57 376 39 S422 18 445 29 S476 37 492 23 L492 95 L36 95Z"/>
+                <path class="chart-line" d="M36 68 C58 65 70 47 99 51 S145 66 168 57 S215 28 238 34 S284 53 307 45 S353 57 376 39 S422 18 445 29 S476 37 492 23"/>
+                <path class="chart-line-secondary" d="M36 78 C62 77 74 70 99 73 S145 79 168 72 S215 59 238 64 S284 71 307 66 S353 75 376 65 S422 49 445 58 S476 63 492 51"/>
+                <circle class="chart-tooltip-dot" cx="445" cy="29" r="4"/>
+                <text class="chart-axis" x="33" y="109">MON</text><text class="chart-axis" x="106" y="109">TUE</text><text class="chart-axis" x="178" y="109">WED</text><text class="chart-axis" x="250" y="109">THU</text><text class="chart-axis" x="322" y="109">FRI</text><text class="chart-axis" x="394" y="109">SAT</text><text class="chart-axis" x="468" y="109">SUN</text>
+              </svg>
+            </div>
+            <div class="chart-legend"><div class="legend-row"><span class="legend-dot" style="background:#65a5ff"></span>Detected incidents</div><div class="legend-row"><span class="legend-dot" style="background:#50c9d5"></span>Threat signals</div></div>
+          </article>
+
+          <article class="card panel status-panel">
+            <div class="panel-head">
+              <div><div class="panel-title">Incident Status</div><div class="panel-caption">Current case distribution</div></div>
+              <button class="icon-button" aria-label="Incident status options"><svg width="15" height="15"><use href="#i-more"/></svg></button>
+            </div>
+            <div class="status-bars">
+              <div class="status-line"><span class="status-name">Investigating</span><div class="bar-track"><div class="bar-fill" style="width:58%;background:#5b9cff"></div></div><span class="status-count">38</span></div>
+              <div class="status-line"><span class="status-name">New</span><div class="bar-track"><div class="bar-fill" style="width:29%;background:#f0a65a"></div></div><span class="status-count">19</span></div>
+              <div class="status-line"><span class="status-name">Contained</span><div class="bar-track"><div class="bar-fill" style="width:34%;background:#58c4d2"></div></div><span class="status-count">22</span></div>
+              <div class="status-line"><span class="status-name">Resolved</span><div class="bar-track"><div class="bar-fill" style="width:100%;background:#56c99a"></div></div><span class="status-count">66</span></div>
+            </div>
+            <div class="status-summary"><span>Open cases <strong>79</strong></span><span>Closed today <strong>24</strong></span></div>
+          </article>
+        </section>
+
+        <section class="lower-grid" id="incidents-intel-section" aria-label="Incident management and threat intelligence">
+          <article class="card incidents-panel" id="incidents-panel">
+            <div class="table-head">
+              <div class="table-heading"><span class="panel-title">Recent Security Incidents</span><span class="table-count" id="incident-case-count">· 0 active cases</span></div>
+              <div class="table-tools">
+                <select class="table-filter" id="severity-filter" aria-label="Filter by severity"><option value="all">All severity</option><option value="Critical">Critical</option><option value="High">High</option><option value="Medium">Medium</option><option value="Low">Low</option></select>
+                <select class="table-filter" id="status-filter" aria-label="Filter by status"><option value="all">All status</option><option value="Investigating">Investigating</option><option value="New">New</option><option value="Contained">Contained</option><option value="Resolved">Resolved</option></select>
+                <button class="text-button" id="view-all">View all <span aria-hidden="true">→</span></button>
+              </div>
+            </div>
+            <div class="table-scroll">
+              <table>
+                <thead><tr><th>Incident ID</th><th>Incident Title</th><th>Source</th><th>Severity</th><th>Status</th><th>MITRE ATT&amp;CK</th><th>Timestamp</th><th aria-label="Actions"></th></tr></thead>
+                <tbody id="incident-rows"></tbody>
+              </table>
+              <div class="empty-row" id="empty-row">No incidents match your filters.</div>
+            </div>
+          </article>
+
+          <aside class="card threat-panel" id="threat-panel" aria-label="Recent threat intelligence">
+            <div class="threat-head">
+              <div class="threat-title-wrap"><span class="threat-icon"><svg width="15" height="15"><use href="#i-network"/></svg></span><div><div class="panel-title">Threat Intelligence</div><div class="panel-caption">Recent indicators of compromise</div></div></div>
+              <span class="live-label"><span class="pulse-dot"></span>LIVE</span>
+            </div>
+            <div class="intel-list" id="intel-list"></div>
+            <div class="intel-footer"><span>Indicators updated <strong>4 min ago</strong></span><button class="text-button" id="intel-view">View intelligence →</button></div>
+          </aside>
+        </section>
+
+        <section class="workspace-section" id="mitre-workspace" hidden aria-label="MITRE ATT&CK workspace">
+          <article class="card workspace-panel">
+            <div class="workspace-heading"><h2>MITRE ATT&amp;CK coverage</h2><p>Techniques observed in tracked incidents and connected SIEM alerts.</p></div>
+            <div class="table-scroll workspace-table"><table><thead><tr><th>Technique</th><th>Technique name</th><th>Observed in</th><th>Severity</th><th>Last observed</th></tr></thead><tbody id="mitre-rows"></tbody></table><div class="workspace-empty" id="mitre-empty">Waiting for incident and alert data.</div></div>
+          </article>
+        </section>
+
+        <section class="workspace-section" id="timeline-workspace" hidden aria-label="Investigation timeline">
+          <article class="card workspace-panel">
+            <div class="workspace-heading"><h2>Investigation timeline</h2><p>Recent incident and SIEM events, ordered by observation time.</p></div>
+            <div class="timeline-list" id="timeline-list"></div>
+            <div class="workspace-empty" id="timeline-empty">Waiting for incident and alert data.</div>
+          </article>
+        </section>
+
+        <section class="workspace-section" id="settings-workspace" hidden aria-label="System settings">
+          <article class="card workspace-panel">
+            <div class="workspace-heading"><h2>System settings</h2><p>Manage your workspace navigation. Overview and Settings always remain available.</p></div>
+            <div class="panel-title">Sidebar sections</div>
+            <div class="settings-note">Use the arrows to change order and visibility switches to show or hide sections. Preferences are saved in this browser.</div>
+            <div class="nav-settings-list" id="navigation-settings"></div>
+            <div class="settings-actions"><button class="secondary-button" id="reset-navigation" type="button">Reset defaults</button><button class="primary-button" id="save-navigation" type="button">Save preferences</button></div>
+          </article>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="incident-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <form class="modal" id="incident-form">
+      <div class="modal-head"><div><h2 id="modal-title">Create incident</h2><div class="modal-copy">Log a new security event for investigation.</div></div><button type="button" class="close-button" id="close-modal" aria-label="Close"><svg width="14" height="14"><use href="#i-close"/></svg></button></div>
+      <div class="form-grid">
+        <label><span class="field-label">Incident title</span><input class="form-input" name="title" required placeholder="e.g. Suspicious login activity"></label>
+        <label><span class="field-label">Severity</span><select class="form-select" name="severity"><option>Medium</option><option>Low</option><option>High</option><option>Critical</option></select></label>
+        <label><span class="field-label">Source</span><input class="form-input" name="source" placeholder="e.g. Endpoint EDR"></label>
+        <label><span class="field-label">MITRE ATT&amp;CK technique <span style="color:#77869b">(optional)</span></span><input class="form-input" name="technique" placeholder="e.g. T1059.001"></label>
+        <label><span class="field-label">Description</span><textarea class="form-textarea" name="description" placeholder="Add relevant context for the SOC team..."></textarea></label>
+      </div>
+      <div class="modal-actions"><button type="button" class="secondary-button" id="cancel-modal">Cancel</button><button type="submit" class="primary-button">Create incident</button></div>
+    </form>
+  </div>
+  <div class="toast" id="toast" role="status"><svg width="15" height="15" style="color:#76cda4"><use href="#i-check"/></svg><span id="toast-message">Incident created successfully</span></div>
+
+  <script>
+    const rows = [];
+    const uiTranslations = {
+      'Workspace': 'مساحة العمل',
+      'Overview': 'نظرة عامة',
+      'Security Incidents': 'الحوادث الأمنية',
+      'Threat Intelligence': 'استخبارات التهديدات',
+      'MITRE ATT&CK': 'MITRE ATT&CK',
+      'Security Analytics': 'التحليلات الأمنية',
+      'Investigation Timeline': 'الخط الزمني للتحقيقات',
+      'Settings': 'الإعدادات',
+      'Platform status': 'حالة المنصة',
+      'All systems operational': 'جميع الأنظمة تعمل بكفاءة',
+      'Demo platform': 'منصة تجريبية',
+      'Sample data · offline': 'بيانات تجريبية · غير متصل',
+      'Demo': 'تجريبي',
+      'Demo analyst': 'محلل تجريبي',
+      'Exit demo': 'الخروج من العرض التجريبي',
+      'Sample events are for demonstration only.': 'الأحداث التجريبية للعرض فقط.',
+      'Sample data · not live': 'بيانات تجريبية · غير مباشرة',
+      'Sample data · offline': 'بيانات تجريبية · غير متصل',
+      'Enterprise': 'المؤسسات',
+      'THREAT INTELLIGENCE': 'استخبارات التهديدات',
+      'THREAT INTELLIGENCE PLATFORM': 'منصة استخبارات التهديدات',
+      'Search incidents, indicators...': 'ابحث عن الحوادث والمؤشرات...',
+      'Search incidents and indicators': 'البحث في الحوادث والمؤشرات',
+      'Notifications': 'الإشعارات',
+      'Security operations · Sample monitoring': 'العمليات الأمنية · بيانات تجريبية',
+      'Security Operations Center': 'مركز العمليات الأمنية',
+      'Threat Monitoring, Incident Response & Intelligence': 'مراقبة التهديدات والاستجابة للحوادث والاستخبارات',
+      'Last 24 hours': 'آخر 24 ساعة',
+      'Last 7 days': 'آخر 7 أيام',
+      'Last 30 days': 'آخر 30 يومًا',
+      'Create Incident': 'إنشاء حادثة',
+      'Operational overview': 'نظرة تشغيلية',
+      'Total Incidents': 'إجمالي الحوادث',
+      'Critical Alerts': 'التنبيهات الحرجة',
+      'Active Investigations': 'التحقيقات النشطة',
+      'Resolved Incidents': 'الحوادث التي تمت معالجتها',
+      'Mean Time to Respond': 'متوسط زمن الاستجابة',
+      'm': 'د',
+      's': 'ث',
+      'Detection Accuracy': 'دقة الاكتشاف',
+      'vs. previous 30 days': 'مقارنةً بآخر 30 يومًا',
+      '3 require immediate attention': '3 حالات تتطلب اهتمامًا فوريًا',
+      '7 assigned to your team': '7 حالات مسندة إلى فريقك',
+      'target under 20 minutes': 'الهدف أقل من 20 دقيقة',
+      'across active detection rules': 'عبر قواعد الاكتشاف النشطة',
+      '85.0% resolution rate': '85.0% نسبة الحل',
+      '↓ 6.4% vs. prior week': '↓ 6.4% مقارنةً بالأسبوع السابق',
+      'SIEM feed preview · sample data': 'معاينة بيانات SIEM · بيانات تجريبية',
+      'Simulated events only · Not connected to Wazuh or Splunk': 'أحداث محاكاة فقط · غير متصل بـWazuh أو Splunk',
+      'Refresh sample data': 'تحديث البيانات التجريبية',
+      'Sample data': 'بيانات تجريبية',
+      'Sample SIEM events': 'أحداث SIEM تجريبية',
+      'Sample SIEM Alerts': 'تنبيهات SIEM تجريبية',
+      'Sample Wazuh alert data': 'بيانات تنبيهات Wazuh تجريبية',
+      'Sample Splunk alert data': 'بيانات تنبيهات Splunk تجريبية',
+      'Sample telemetry · not connected': 'بيانات تجريبية · غير متصل',
+      'No sample alerts are available.': 'لا توجد تنبيهات تجريبية متاحة.',
+      'Sample SIEM data is unavailable.': 'بيانات SIEM التجريبية غير متاحة.',
+      'sample alerts': 'تنبيهات تجريبية',
+      'samples': 'عينات',
+      'SAMPLE': 'تجريبي',
+      'Demo data': 'بيانات تجريبية',
+      'Sample telemetry · not connected': 'بيانات تجريبية · غير متصل',
+      'Source': 'المصدر',
+      'Time': 'الوقت',
+      'Severity': 'الخطورة',
+      'Alert': 'التنبيه',
+      'Agent / Host': 'الوكيل / المضيف',
+      'Source IP': 'عنوان IP للمصدر',
+      'Severity Distribution': 'توزيع درجات الخطورة',
+      'Incidents by priority': 'الحوادث حسب الأولوية',
+      'total alerts': 'إجمالي التنبيهات',
+      'Critical': 'حرج',
+      'High': 'مرتفع',
+      'Medium': 'متوسط',
+      'Low': 'منخفض',
+      'Security Incident Trends': 'اتجاهات الحوادث الأمنية',
+      'Detected events over time': 'الأحداث المكتشفة بمرور الوقت',
+      'Last 7 days': 'آخر 7 أيام',
+      'events this week': 'حدث هذا الأسبوع',
+      'vs. prior week': 'مقارنةً بالأسبوع السابق',
+      'MON': 'الإثنين',
+      'TUE': 'الثلاثاء',
+      'WED': 'الأربعاء',
+      'THU': 'الخميس',
+      'FRI': 'الجمعة',
+      'SAT': 'السبت',
+      'SUN': 'الأحد',
+      'Detected incidents': 'الحوادث المكتشفة',
+      'Threat signals': 'مؤشرات التهديد',
+      'Incident Status': 'حالة الحوادث',
+      'Current case distribution': 'توزيع الحالات الحالية',
+      'Investigating': 'قيد التحقيق',
+      'New': 'جديدة',
+      'Contained': 'تم احتواؤها',
+      'Resolved': 'تم حلها',
+      'Open cases': 'الحالات المفتوحة',
+      'Closed today': 'أُغلقت اليوم',
+      'Recent Security Incidents': 'أحدث الحوادث الأمنية',
+      'Demo only': 'للعرض التجريبي فقط',
+      '· 0 active cases': '· 0 حالة نشطة',
+      'All severity': 'كل درجات الخطورة',
+      'All status': 'كل الحالات',
+      'View all': 'عرض الكل',
+      'Incident ID': 'معرّف الحادثة',
+      'Incident Title': 'عنوان الحادثة',
+      'Status': 'الحالة',
+      'Timestamp': 'الطابع الزمني',
+      'Actions': 'الإجراءات',
+      'No incidents match your filters.': 'لا توجد حوادث تطابق عوامل التصفية.',
+      'Recent indicators of compromise': 'أحدث مؤشرات الاختراق',
+      'LIVE': 'مباشر',
+      'Indicators updated': 'آخر تحديث للمؤشرات',
+      'View intelligence →': 'عرض الاستخبارات ←',
+      'SAMPLE IOC': 'مؤشر تجريبي',
+      'Repeated SSH brute-force attempt': 'محاولة متكررة لتخمين كلمات مرور SSH',
+      'Suspicious PowerShell execution': 'تشغيل مريب لـPowerShell',
+      'Credential-harvesting phishing alert': 'تنبيه تصيّد لمحاولة سرقة بيانات الدخول',
+      'Unusual authentication activity': 'نشاط مصادقة غير معتاد',
+      'Anomalous outbound data transfer': 'نقل بيانات صادر غير طبيعي',
+      'Suspicious DNS query pattern': 'نمط استعلامات DNS مريب',
+      'Multiple failed SSH authentication attempts': 'محاولات مصادقة SSH فاشلة متعددة',
+      'Suspicious PowerShell encoded command': 'أمر PowerShell مشفر ومريب',
+      'Unusual authentication from new location': 'مصادقة غير معتادة من موقع جديد',
+      'Credential-harvesting link reported by user': 'أبلغ مستخدم عن رابط لسرقة بيانات الدخول',
+      'Credential stuffing · Suspicious IP': 'حشو بيانات الدخول · عنوان IP مريب',
+      'Known phishing infrastructure': 'بنية تحتية معروفة للتصيّد',
+      'C2 beaconing · Malware family: Cobalt Strike': 'إشارات اتصال C2 · عائلة برمجيات Cobalt Strike',
+      'Perimeter FW': 'جدار الحماية المحيطي',
+      'Endpoint EDR': 'حماية الأجهزة الطرفية',
+      'Email Gateway': 'بوابة البريد الإلكتروني',
+      'Identity Provider': 'موفر الهوية',
+      'Network Sensor': 'مستشعر الشبكة',
+      'DNS Security': 'أمن DNS',
+      'Use the arrows to change order and visibility switches to show or hide sections. Preferences are saved in this browser.': 'استخدم الأسهم لتغيير الترتيب ومفاتيح الظهور لإظهار الأقسام أو إخفائها. تُحفظ التفضيلات في هذا المتصفح.',
+      'Confidence': 'الثقة',
+      'MITRE ·': 'MITRE ·',
+      'MITRE ATT&CK coverage': 'تغطية MITRE ATT&CK',
+      'Techniques observed in tracked incidents and connected SIEM alerts.': 'التقنيات المرصودة في الحوادث المسجلة وتنبيهات SIEM المتصلة.',
+      'Technique': 'التقنية',
+      'Technique name': 'اسم التقنية',
+      'Observed in': 'مصادر الرصد',
+      'Last observed': 'آخر رصد',
+      'Waiting for incident and alert data.': 'بانتظار بيانات الحوادث والتنبيهات.',
+      'Investigation timeline': 'الخط الزمني للتحقيقات',
+      'Recent incident and SIEM events, ordered by observation time.': 'أحدث الحوادث وأحداث SIEM مرتبة حسب وقت الرصد.',
+      'System settings': 'إعدادات النظام',
+      'Manage your workspace navigation. Overview and Settings always remain available.': 'تحكم في أقسام مساحة العمل. تظل النظرة العامة والإعدادات متاحتين دائمًا.',
+      'Sidebar sections': 'أقسام الشريط الجانبي',
+      'Visible': 'ظاهر',
+      'Reset defaults': 'استعادة الافتراضي',
+      'Save preferences': 'حفظ التفضيلات',
+      'Create incident': 'إنشاء حادثة',
+      'Log a new security event for investigation.': 'سجّل حدثًا أمنيًا جديدًا للتحقيق فيه.',
+      'Incident title': 'عنوان الحادثة',
+      'Source': 'المصدر',
+      'MITRE ATT&CK technique': 'تقنية MITRE ATT&CK',
+      '(optional)': '(اختياري)',
+      'Description': 'الوصف',
+      'Add relevant context for the SOC team...': 'أضف تفاصيل مهمة لفريق مركز العمليات...',
+      'Cancel': 'إلغاء',
+      'Create incident': 'إنشاء حادثة',
+      'Incident created successfully': 'تم إنشاء الحادثة بنجاح',
+      'created in this browser demo': 'أُنشئت في هذا العرض على المتصفح',
+      'Could not create the sample incident.': 'تعذر إنشاء الحادثة التجريبية.',
+      'Could not exit demo mode.': 'تعذر الخروج من الوضع التجريبي.',
+      'Incident is not available in the demo data.': 'الحادثة غير متاحة في البيانات التجريبية.',
+      'Could not load incidents:': 'تعذر تحميل الحوادث:',
+      'Changes are temporary because browser storage is unavailable.': 'التغييرات مؤقتة لأن مساحة تخزين المتصفح غير متاحة.',
+      'Could not read saved demo data; showing sample defaults.': 'تعذرت قراءة بيانات العرض المحفوظة؛ سيتم عرض البيانات التجريبية الافتراضية.',
+      'Unable to load incidents:': 'تعذر تحميل الحوادث:',
+      'Could not load threat indicators:': 'تعذر تحميل مؤشرات التهديد:',
+      'Could not refresh SIEM feeds:': 'تعذر تحديث مصادر SIEM:',
+      'Sidebar preferences saved': 'تم حفظ تفضيلات الشريط الجانبي',
+      'Default sidebar restored': 'تمت استعادة الشريط الجانبي الافتراضي',
+      'Showing all recent incidents': 'عرض جميع الحوادث الأخيرة',
+      'Threat intelligence feed is up to date': 'مصدر استخبارات التهديدات محدّث',
+      'You are all caught up on notifications': 'لا توجد إشعارات جديدة',
+      'Dashboard range updated:': 'تم تحديث النطاق الزمني:',
+      'Source:': 'المصدر:',
+      'Last check': 'آخر تحقق',
+      '4 min ago': 'منذ 4 دقائق',
+      'alerts': 'تنبيهات',
+      'alert': 'تنبيه',
+      'last 24 hours': 'آخر 24 ساعة',
+      'sources': 'مصادر',
+      'source': 'مصدر',
+      'Observed technique': 'تقنية مرصودة',
+      'Password Guessing': 'تخمين كلمات المرور',
+      'Valid Accounts': 'حسابات صالحة',
+      'Spearphishing Link': 'رابط تصيد موجه',
+      'Exfiltration Over C2 Channel': 'تسريب البيانات عبر قناة القيادة والتحكم',
+      'PowerShell': 'PowerShell',
+      'DNS': 'DNS',
+      'Brute Force': 'هجوم القوة الغاشمة',
+      'Incident': 'حادثة',
+      'SIEM alert': 'تنبيه SIEM',
+      'Hide': 'إخفاء',
+      'Show': 'إظهار',
+      'Move up': 'تحريك لأعلى',
+      'Move down': 'تحريك لأسفل',
+      'Severity chart options': 'خيارات مخطط الخطورة',
+      'Incident status options': 'خيارات حالة الحوادث',
+      'Dashboard time range': 'النطاق الزمني للوحة المعلومات',
+      'Incident trend period': 'فترة اتجاه الحوادث',
+      'Open': 'فتح',
+      'Close': 'إغلاق',
+      'e.g. Suspicious login activity': 'مثال: نشاط تسجيل دخول مريب',
+      'e.g. Endpoint EDR': 'مثال: نظام حماية الأجهزة',
+      'e.g. T1059.001': 'مثال: T1059.001',
+      'Add relevant context for the SOC team...': 'أضف تفاصيل مهمة لفريق مركز العمليات...',
+      'Enter the incident title': 'أدخل عنوان الحادثة',
+      'Primary navigation': 'التنقل الرئيسي',
+      'Security overview statistics': 'إحصاءات النظرة الأمنية العامة',
+      'Security analytics': 'التحليلات الأمنية',
+      'Incident management and threat intelligence': 'إدارة الحوادث واستخبارات التهديدات',
+      'Recent threat intelligence': 'أحدث استخبارات التهديدات',
+      'MITRE ATT&CK workspace': 'مساحة عمل MITRE ATT&CK',
+      'Investigation timeline': 'الخط الزمني للتحقيقات',
+      'Severity distribution: 12 critical, 46 high, 84 medium, 35 low': 'توزيع الخطورة: 12 حرجًا، 46 مرتفعًا، 84 متوسطًا، 35 منخفضًا',
+      'Seven day incident trend, peaking Wednesday and Friday': 'اتجاه الحوادث خلال سبعة أيام، مع ذروة يومي الأربعاء والجمعة',
+      'Switch language': 'تغيير اللغة',
+      'Switch language to Arabic': 'تغيير اللغة إلى العربية',
+      'Switch language to English': 'تغيير اللغة إلى الإنجليزية',
+      'Language changed for this session; browser storage is unavailable.': 'تم تغيير اللغة لهذه الجلسة؛ مساحة التخزين في المتصفح غير متاحة.'
+    };
+    let currentLanguage = (() => {
+      try {
+        return localStorage.getItem('mrx-soc-language') === 'ar' ? 'ar' : 'en';
+      } catch (error) {
+        console.warn('Could not read the saved language preference.', error);
+        return 'en';
+      }
+    })();
+    const originalTextNodes = new WeakMap();
+    const originalAttributes = new WeakMap();
+    const navigationLabels = {
+      incidents: 'Security Incidents',
+      'threat-intel': 'Threat Intelligence',
+      mitre: 'MITRE ATT&CK',
+      analytics: 'Security Analytics',
+      timeline: 'Investigation Timeline',
+      settings: 'Settings'
+    };
+    const defaultNavigation = ['incidents', 'threat-intel', 'mitre', 'analytics', 'timeline', 'settings'];
+    const demoIncidentSeed = [
+      ['INC-2847', 'Repeated SSH brute-force attempt', 'Perimeter FW', 'Critical', 'Investigating', 'T1110.001', 10],
+      ['INC-2845', 'Suspicious PowerShell execution', 'Endpoint EDR', 'High', 'New', 'T1059.001', 34],
+      ['INC-2842', 'Credential-harvesting phishing alert', 'Email Gateway', 'High', 'Investigating', 'T1566.002', 71],
+      ['INC-2839', 'Unusual authentication activity', 'Identity Provider', 'Medium', 'Contained', 'T1078', 108],
+      ['INC-2836', 'Anomalous outbound data transfer', 'Network Sensor', 'Medium', 'Investigating', 'T1041', 176],
+      ['INC-2831', 'Suspicious DNS query pattern', 'DNS Security', 'Low', 'Resolved', 'T1071.004', 245]
+    ];
+    const demoThreatIndicators = [
+      { indicator: '198.51.100.42', type: 'IPv4', description: 'Credential stuffing · Suspicious IP', source: 'MR.X Research', confidence: 96, technique: 'T1110', technique_name: 'Brute Force', sample: true },
+      { indicator: '203.0.113.87', type: 'IPv4', description: 'Known phishing infrastructure', source: 'OpenCTI Feed', confidence: 89, technique: 'T1566.002', technique_name: 'Spearphishing Link', sample: true },
+      { indicator: '192.0.2.164', type: 'IPv4', description: 'C2 beaconing · Malware family: Cobalt Strike', source: 'Community Intel', confidence: 82, technique: 'T1071.001', technique_name: 'Web Protocols', sample: true }
+    ];
+    const demoSiemAlertSeed = [
+      { id: 'demo-wazuh-1', provider: 'Wazuh', severity: 'Critical', title: 'Multiple failed SSH authentication attempts', agent: 'edge-01', technique: 'T1110.001', source_ip: '198.51.100.42', minutesAgo: 8 },
+      { id: 'demo-splunk-1', provider: 'Splunk', severity: 'High', title: 'Suspicious PowerShell encoded command', agent: 'endpoint-07', technique: 'T1059.001', source_ip: '203.0.113.87', minutesAgo: 22 },
+      { id: 'demo-wazuh-2', provider: 'Wazuh', severity: 'Medium', title: 'Unusual authentication from new location', agent: 'idp-gateway', technique: 'T1078', source_ip: '192.0.2.164', minutesAgo: 39 },
+      { id: 'demo-splunk-2', provider: 'Splunk', severity: 'High', title: 'Credential-harvesting link reported by user', agent: 'mail-gateway', technique: 'T1566.002', source_ip: '203.0.113.9', minutesAgo: 54 }
+    ];
+    const requiredNavigation = new Set(['overview', 'settings']);
+    const sectionVisibility = {
+      overview: ['stats-section', 'siem-section', 'analytics-section', 'incidents-intel-section'],
+      incidents: ['stats-section', 'incidents-intel-section'],
+      'threat-intel': ['siem-section', 'incidents-intel-section'],
+      analytics: ['stats-section', 'analytics-section'],
+      mitre: ['mitre-workspace'],
+      timeline: ['timeline-workspace'],
+      settings: ['settings-workspace']
+    };
+    let navigationPreferences = { order: [...defaultNavigation], hidden: [] };
+    let activePage = 'overview';
+    let incidentData = [];
+    let siemAlertData = [];
+    let siemProviderData = [];
+    let threatIndicatorData = [];
+    const severityFilter = document.querySelector('#severity-filter');
+    const statusFilter = document.querySelector('#status-filter');
+    const searchInput = document.querySelector('#global-search');
+    const emptyRow = document.querySelector('#empty-row');
+    const toast = document.querySelector('#toast');
+    let toastTimer;
+
+    function translate(value) {
+      if (currentLanguage !== 'ar') return value;
+      if (uiTranslations[value]) return uiTranslations[value];
+      const prefix = Object.keys(uiTranslations).find((key) => key.endsWith(':') && value.startsWith(key));
+      return prefix ? `${uiTranslations[prefix]}${value.slice(prefix.length)}` : value;
+    }
+
+    function applyTranslations() {
+      const root = document.documentElement;
+      root.lang = currentLanguage;
+      root.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+      document.title = currentLanguage === 'ar' ? 'MR.X | لوحة مركز العمليات الأمنية' : 'MR.X | TIP SOC Dashboard';
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+      let node;
+      while ((node = walker.nextNode())) {
+        if (!originalTextNodes.has(node)) originalTextNodes.set(node, node.nodeValue);
+        const original = originalTextNodes.get(node);
+        const key = original.trim().replace(/\s+/g, ' ');
+        if (key && uiTranslations[key]) {
+          const leading = original.match(/^\s*/)[0];
+          const trailing = original.match(/\s*$/)[0];
+          node.nodeValue = `${leading}${translate(key)}${trailing}`;
+        } else if (currentLanguage === 'en') {
+          node.nodeValue = original;
+        }
+      }
+      document.querySelectorAll('[placeholder], [aria-label], [title]').forEach((element) => {
+        let originals = originalAttributes.get(element);
+        if (!originals) {
+          originals = {};
+          originalAttributes.set(element, originals);
+        }
+        ['placeholder', 'aria-label', 'title'].forEach((attribute) => {
+          if (!element.hasAttribute(attribute)) return;
+          if (!(attribute in originals)) originals[attribute] = element.getAttribute(attribute);
+          element.setAttribute(attribute, translate(originals[attribute]));
+        });
+      });
+      document.querySelector('#language-toggle').textContent = currentLanguage === 'ar' ? 'English' : 'العربية';
+      document.querySelector('#language-toggle').setAttribute(
+        'aria-label',
+        translate(currentLanguage === 'ar' ? 'Switch language to English' : 'Switch language to Arabic')
+      );
+      document.querySelectorAll('#workspace-nav .nav-item').forEach((item) => {
+        const label = translate(item.dataset.nav === 'overview' ? 'Overview' : navigationLabels[item.dataset.nav]);
+        item.setAttribute('aria-label', label);
+        item.setAttribute('title', label);
+      });
+    }
+
+    function setLanguage(language) {
+      currentLanguage = language === 'ar' ? 'ar' : 'en';
+      try {
+        localStorage.setItem('mrx-soc-language', currentLanguage);
+      } catch (error) {
+        console.warn('Could not save the language preference.', error);
+        showToast('Language changed for this session; browser storage is unavailable.', true);
+      }
+      applyTranslations();
+      activatePage(activePage);
+      renderThreatIndicators(threatIndicatorData);
+      renderSiemProviders(siemProviderData);
+      renderSiemAlerts(siemAlertData);
+      const incidentBody = document.querySelector('#incident-rows');
+      incidentBody.replaceChildren(...incidentData.map(createIncidentRow));
+      rows.splice(0, rows.length, ...incidentBody.querySelectorAll('tr'));
+      filterIncidents();
+      document.querySelectorAll('#incident-rows tr[data-timestamp], #siem-alert-rows tr[data-timestamp]').forEach((row) => {
+        row.querySelector('.timestamp').textContent = formatSiemTime(row.dataset.timestamp);
+      });
+      updateIncidentCount();
+    }
+
+    function showToast(message, isError = false) {
+      document.querySelector('#toast-message').textContent = translate(message);
+      toast.classList.toggle('error', isError);
+      toast.classList.add('show');
+      window.clearTimeout(toastTimer);
+      toastTimer = window.setTimeout(() => toast.classList.remove('show'), 2800);
+    }
+
+    function formatTimestamp(value) {
+      return new Intl.DateTimeFormat(currentLanguage === 'ar' ? 'ar-EG' : 'en', {
+        month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false
+      }).format(new Date(value));
+    }
+
+    function updateIncidentCount() {
+      const activeCount = incidentData.filter((incident) => incident.status !== 'Resolved').length;
+      document.querySelector('#incident-case-count').textContent = currentLanguage === 'ar'
+        ? `· ${activeCount} حالة نشطة`
+        : `· ${activeCount} active cases`;
+    }
+
+    function readDemoStorage(key, fallback) {
+      try {
+        const stored = localStorage.getItem(key);
+        return stored === null ? fallback : JSON.parse(stored);
+      } catch (error) {
+        console.error(`Could not read demo data from browser storage (${key}).`, error);
+        showToast('Could not read saved demo data; showing sample defaults.', true);
+        return fallback;
+      }
+    }
+
+    function writeDemoStorage(key, value) {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+        return true;
+      } catch (error) {
+        console.error(`Could not save demo data to browser storage (${key}).`, error);
+        showToast('Changes are temporary because browser storage is unavailable.', true);
+        return false;
+      }
+    }
+
+    function createSeedIncidents() {
+      return demoIncidentSeed.map(([id, title, source, severity, status, technique, minutesAgo]) => {
+        const createdAt = new Date(Date.now() - minutesAgo * 60_000).toISOString();
+        return { id, title, source, severity, status, technique, description: null, created_at: createdAt, updated_at: createdAt };
+      });
+    }
+
+    function saveDemoIncidents() {
+      writeDemoStorage('mrx-soc-demo-incidents', incidentData);
+    }
+
+    function createIncidentRow(incident) {
+      const row = document.createElement('tr');
+      row.dataset.severity = incident.severity;
+      row.dataset.status = incident.status;
+      row.dataset.timestamp = incident.created_at;
+      row.dataset.search = [
+        incident.id, incident.title, incident.source, incident.severity, incident.status,
+        incident.technique || '', incident.created_at
+      ].join(' ').toLowerCase();
+
+      const idCell = document.createElement('td');
+      idCell.className = 'incident-id';
+      idCell.textContent = incident.id;
+      const titleCell = document.createElement('td');
+      titleCell.className = 'incident-title';
+      titleCell.textContent = translate(incident.title);
+      const sourceCell = document.createElement('td');
+      sourceCell.className = 'source';
+      sourceCell.textContent = translate(incident.source);
+      const severityCell = document.createElement('td');
+      const severityBadge = document.createElement('span');
+      severityBadge.className = `severity-badge severity-${incident.severity.toLowerCase()}`;
+      severityBadge.textContent = translate(incident.severity);
+      severityCell.append(severityBadge);
+      const statusCell = document.createElement('td');
+      const statusBadge = document.createElement('span');
+      statusBadge.className = `status-badge status-${incident.status.toLowerCase()}`;
+      statusBadge.textContent = translate(incident.status);
+      statusCell.append(statusBadge);
+      const techniqueCell = document.createElement('td');
+      techniqueCell.className = 'technique';
+      techniqueCell.textContent = incident.technique || '—';
+      const timestampCell = document.createElement('td');
+      timestampCell.className = 'timestamp';
+      timestampCell.textContent = formatTimestamp(incident.created_at);
+      const actionCell = document.createElement('td');
+      const action = document.createElement('button');
+      action.className = 'row-action';
+      action.type = 'button';
+      action.setAttribute('aria-label', `${translate('Open')} ${incident.id}`);
+      action.innerHTML = '<svg width="15" height="15"><use href="#i-more"></use></svg>';
+      actionCell.append(action);
+      row.append(idCell, titleCell, sourceCell, severityCell, statusCell, techniqueCell, timestampCell, actionCell);
+      return row;
+    }
+
+    function loadIncidents() {
+      const stored = readDemoStorage('mrx-soc-demo-incidents', null);
+      incidentData = Array.isArray(stored) && stored.every((incident) =>
+        incident && typeof incident.id === 'string' && typeof incident.title === 'string'
+      ) ? stored : createSeedIncidents();
+      const body = document.querySelector('#incident-rows');
+      body.replaceChildren(...incidentData.map(createIncidentRow));
+      rows.splice(0, rows.length, ...body.querySelectorAll('tr'));
+      filterIncidents();
+      renderInvestigationViews();
+      document.querySelector('.nav-count').textContent = incidentData.length;
+      updateIncidentCount();
+      applyTranslations();
+    }
+
+    function renderThreatIndicators(indicators) {
+      const list = document.querySelector('#intel-list');
+      list.replaceChildren(...indicators.map((indicator) => {
+          const item = document.createElement('div');
+          item.className = 'intel-item';
+          const confidence = Math.max(0, Math.min(100, Number(indicator.confidence)));
+          item.innerHTML = `
+            <div class="intel-top"><span class="ioc"></span><span class="sample-tag">SAMPLE IOC</span></div>
+            <div class="intel-description"></div>
+            <div class="intel-meta"><span class="intel-source"></span><span class="confidence"><span class="confidence-track"><span class="confidence-fill"></span></span><span class="confidence-value"></span></span></div>
+            <div class="intel-technique"></div>`;
+          item.querySelector('.ioc').textContent = indicator.indicator;
+          item.querySelector('.intel-description').textContent = translate(indicator.description);
+          item.querySelector('.intel-source').textContent = `${translate('Source:')} ${indicator.source}`;
+          item.querySelector('.confidence-fill').style.width = `${confidence}%`;
+          item.querySelector('.confidence-value').textContent = `${confidence}%`;
+          item.querySelector('.intel-technique').textContent = `${translate('MITRE ·')} ${indicator.technique} — ${translate(indicator.technique_name)}`;
+          return item;
+      }));
+      applyTranslations();
+    }
+
+    function loadThreatIndicators() {
+      threatIndicatorData = demoThreatIndicators;
+      renderThreatIndicators(threatIndicatorData);
+    }
+
+    function formatSiemTime(value) {
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return String(value || '—');
+      return new Intl.DateTimeFormat(currentLanguage === 'ar' ? 'ar-EG' : 'en', { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).format(date);
+    }
+
+    function renderSiemProviders(providers) {
+      siemProviderData = providers;
+      const cards = providers.map((provider) => {
+        const card = document.createElement('article');
+        card.className = 'card provider-card';
+        card.dataset.status = provider.status;
+        const identity = document.createElement('div');
+        identity.className = 'provider-identity';
+        const mark = document.createElement('span');
+        mark.className = 'provider-mark';
+        mark.textContent = provider.provider === 'Wazuh' ? 'WZ' : 'SP';
+        const nameWrap = document.createElement('div');
+        const name = document.createElement('div');
+        name.className = 'provider-name';
+        name.textContent = provider.provider === 'Wazuh' ? 'Wazuh Indexer' : provider.provider;
+        const kind = document.createElement('div');
+        kind.className = 'provider-kind';
+        kind.textContent = provider.provider === 'Wazuh' ? translate('Sample Wazuh alert data') : translate('Sample Splunk alert data');
+        nameWrap.append(name, kind);
+        identity.append(mark, nameWrap);
+        const top = document.createElement('div');
+        top.className = 'provider-top';
+        const state = document.createElement('span');
+        state.className = 'provider-state';
+        state.textContent = translate('Demo data');
+        top.append(identity, state);
+        const bottom = document.createElement('div');
+        bottom.className = 'provider-bottom';
+        const message = document.createElement('span');
+        message.className = 'provider-message';
+        message.textContent = translate('Sample telemetry · not connected');
+        const count = document.createElement('span');
+        count.className = 'provider-count';
+        count.textContent = currentLanguage === 'ar'
+          ? `${provider.count || 0} عينة`
+          : `${provider.count || 0} samples`;
+        bottom.append(message, count);
+        card.append(top, bottom);
+        return card;
+      });
+      document.querySelector('#siem-providers').replaceChildren(...cards);
+      applyTranslations();
+    }
+
+    function renderSiemAlerts(alerts) {
+      siemAlertData = alerts;
+      const body = document.querySelector('#siem-alert-rows');
+      const rows = alerts.map((alert) => {
+        const row = document.createElement('tr');
+        row.dataset.severity = alert.severity;
+        row.dataset.timestamp = alert.timestamp;
+        const providerCell = document.createElement('td');
+        const providerBadge = document.createElement('span');
+        providerBadge.className = `provider-badge${alert.provider === 'Splunk' ? ' splunk' : ''}`;
+        providerBadge.textContent = alert.provider;
+        providerCell.append(providerBadge);
+        const timeCell = document.createElement('td');
+        timeCell.className = 'timestamp';
+        timeCell.textContent = formatSiemTime(alert.timestamp);
+        const severityCell = document.createElement('td');
+        const severityBadge = document.createElement('span');
+        severityBadge.className = `severity-badge severity-${String(alert.severity).toLowerCase()}`;
+        severityBadge.textContent = translate(alert.severity);
+        severityCell.append(severityBadge);
+        const titleCell = document.createElement('td');
+        titleCell.className = 'siem-event';
+        titleCell.title = alert.title;
+        titleCell.textContent = translate(alert.title);
+        const agentCell = document.createElement('td');
+        agentCell.className = 'siem-agent';
+        agentCell.textContent = alert.agent || '—';
+        const techniqueCell = document.createElement('td');
+        techniqueCell.className = 'siem-technique';
+        techniqueCell.textContent = alert.technique || '—';
+        const ipCell = document.createElement('td');
+        ipCell.className = 'technique';
+        ipCell.textContent = alert.source_ip || '—';
+        row.append(providerCell, timeCell, severityCell, titleCell, agentCell, techniqueCell, ipCell);
+        return row;
+      });
+      body.replaceChildren(...rows);
+      document.querySelector('#siem-empty').style.display = rows.length ? 'none' : 'block';
+      document.querySelector('#siem-empty').textContent = rows.length
+        ? ''
+        : translate('No sample alerts are available.');
+      document.querySelector('#siem-alert-count').textContent = currentLanguage === 'ar'
+        ? `${alerts.length} عينة · ${translate('last 24 hours')}`
+        : `${alerts.length} sample alerts · last 24 hours`;
+      renderInvestigationViews();
+      applyTranslations();
+    }
+
+    function renderInvestigationViews() {
+      const techniqueNames = {
+        'T1059.001': 'PowerShell',
+        'T1078': 'Valid Accounts',
+        'T1110.001': 'Password Guessing',
+        'T1566.002': 'Spearphishing Link',
+        'T1041': 'Exfiltration Over C2 Channel',
+        'T1071.004': 'DNS',
+        'T1110': 'Brute Force'
+      };
+      const observedTechniques = new Map();
+      const events = [
+        ...incidentData.map((incident) => ({
+          id: incident.id,
+          title: incident.title,
+          source: incident.source,
+          severity: incident.severity,
+          technique: incident.technique,
+          timestamp: incident.created_at,
+          kind: 'Incident'
+        })),
+        ...siemAlertData.map((alert) => ({
+          id: alert.id,
+          title: alert.title,
+          source: alert.provider,
+          severity: alert.severity,
+          technique: alert.technique,
+          timestamp: alert.timestamp,
+          kind: 'SIEM alert'
+        }))
+      ].filter((event) => event.technique);
+      events.forEach((event) => {
+        const key = event.technique.toUpperCase();
+        const current = observedTechniques.get(key) || {
+          technique: key,
+          name: translate(techniqueNames[key] || 'Observed technique'),
+          sources: new Set(),
+          severity: event.severity,
+          timestamp: event.timestamp
+        };
+        current.sources.add(event.source);
+        if (new Date(event.timestamp) > new Date(current.timestamp)) current.timestamp = event.timestamp;
+        const severityRank = { Critical: 4, High: 3, Medium: 2, Low: 1 };
+        if ((severityRank[event.severity] || 0) > (severityRank[current.severity] || 0)) current.severity = event.severity;
+        observedTechniques.set(key, current);
+      });
+      const mitreRows = [...observedTechniques.values()].sort((a, b) => a.technique.localeCompare(b.technique)).map((item) => {
+        const row = document.createElement('tr');
+        const values = [
+          item.technique,
+          item.name,
+          currentLanguage === 'ar'
+            ? `${item.sources.size} ${translate(item.sources.size === 1 ? 'source' : 'sources')}`
+            : `${item.sources.size} source${item.sources.size === 1 ? '' : 's'}`,
+          translate(item.severity),
+          formatSiemTime(item.timestamp)
+        ];
+        values.forEach((value, index) => {
+          const cell = document.createElement('td');
+          cell.textContent = value;
+          if (index === 0) cell.className = 'siem-technique';
+          if (index === 3) {
+            const badge = document.createElement('span');
+            badge.className = `severity-badge severity-${item.severity.toLowerCase()}`;
+            badge.textContent = value;
+            cell.replaceChildren(badge);
+          }
+          row.append(cell);
+        });
+        return row;
+      });
+      document.querySelector('#mitre-rows').replaceChildren(...mitreRows);
+      document.querySelector('#mitre-empty').hidden = mitreRows.length > 0;
+
+      const timeline = [...incidentData.map((incident) => ({
+        title: incident.title,
+        source: incident.source,
+        severity: incident.severity,
+        timestamp: incident.created_at,
+        kind: 'Incident'
+      })), ...siemAlertData.map((alert) => ({
+        title: alert.title,
+        source: alert.provider,
+        severity: alert.severity,
+        timestamp: alert.timestamp,
+        kind: 'SIEM alert'
+      }))].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      const timelineNodes = timeline.map((event) => {
+        const entry = document.createElement('article');
+        entry.className = 'timeline-entry';
+        entry.dataset.severity = event.severity;
+        const time = document.createElement('time');
+        time.className = 'timeline-time';
+        time.dateTime = event.timestamp;
+        time.textContent = formatSiemTime(event.timestamp);
+        const marker = document.createElement('span');
+        marker.className = 'timeline-marker';
+        marker.setAttribute('aria-hidden', 'true');
+        const copy = document.createElement('div');
+        copy.className = 'timeline-entry-copy';
+        const title = document.createElement('div');
+        title.className = 'timeline-title';
+        title.textContent = translate(event.title);
+        const meta = document.createElement('div');
+        meta.className = 'timeline-meta';
+        meta.textContent = `${translate(event.kind)} · ${translate(event.severity)} · `;
+        const source = document.createElement('span');
+        source.className = 'timeline-source';
+        source.textContent = translate(event.source);
+        meta.append(source);
+        copy.append(title, meta);
+        entry.append(time, marker, copy);
+        return entry;
+      });
+      document.querySelector('#timeline-list').replaceChildren(...timelineNodes);
+      document.querySelector('#timeline-empty').hidden = timelineNodes.length > 0;
+    }
+
+    function applyNavigationPreferences() {
+      const nav = document.querySelector('#workspace-nav');
+      const overview = nav.querySelector('[data-nav="overview"]');
+      const items = navigationPreferences.order.map((id) => nav.querySelector(`[data-nav="${id}"]`));
+      nav.replaceChildren(overview, ...items);
+      nav.querySelectorAll('.nav-item').forEach((item) => {
+        const id = item.dataset.nav;
+        item.hidden = id !== 'overview' && navigationPreferences.hidden.includes(id);
+      });
+      if (navigationPreferences.hidden.includes(activePage)) activatePage('overview');
+    }
+
+    function activatePage(page) {
+      activePage = page;
+      document.querySelectorAll('.nav-item').forEach((item) => item.classList.toggle('active', item.dataset.nav === page));
+      document.querySelector('#breadcrumb-current').textContent = translate(page === 'overview' ? 'Overview' : navigationLabels[page]);
+      const visibleSections = new Set(sectionVisibility[page]);
+      document.querySelectorAll('.content > section[id]').forEach((section) => {
+        section.hidden = !visibleSections.has(section.id);
+      });
+      const lowerGrid = document.querySelector('#incidents-intel-section');
+      const incidentsPanel = document.querySelector('#incidents-panel');
+      const threatPanel = document.querySelector('#threat-panel');
+      incidentsPanel.hidden = page === 'threat-intel';
+      threatPanel.hidden = page === 'incidents';
+      lowerGrid.dataset.focus = page === 'incidents' ? 'incidents' : page === 'threat-intel' ? 'threat' : '';
+      if (page === 'mitre' || page === 'timeline') renderInvestigationViews();
+      if (page === 'settings') renderNavigationSettings();
+    }
+
+    function renderNavigationSettings() {
+      const list = document.querySelector('#navigation-settings');
+      const rows = navigationPreferences.order.map((id, index) => {
+        const row = document.createElement('div');
+        row.className = 'nav-setting-row';
+        const name = document.createElement('span');
+        name.className = 'nav-setting-name';
+        name.textContent = translate(navigationLabels[id]);
+        const toggleWrap = document.createElement('label');
+        toggleWrap.className = 'nav-setting-toggle';
+        const toggle = document.createElement('input');
+        toggle.type = 'checkbox';
+        toggle.checked = !navigationPreferences.hidden.includes(id);
+        toggle.disabled = requiredNavigation.has(id);
+        toggle.setAttribute('aria-label', `${translate(toggle.checked ? 'Hide' : 'Show')} ${translate(navigationLabels[id])}`);
+        toggle.addEventListener('change', () => {
+          navigationPreferences.hidden = toggle.checked
+            ? navigationPreferences.hidden.filter((hiddenId) => hiddenId !== id)
+            : [...navigationPreferences.hidden, id];
+          toggle.setAttribute('aria-label', `${translate(toggle.checked ? 'Hide' : 'Show')} ${translate(navigationLabels[id])}`);
+          applyNavigationPreferences();
+        });
+        toggleWrap.append(toggle, document.createTextNode(translate('Visible')));
+        const actions = document.createElement('span');
+        actions.className = 'nav-setting-actions';
+        ['↑', '↓'].forEach((direction, offset) => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.textContent = direction;
+          button.disabled = offset === 0 ? index === 0 : index === navigationPreferences.order.length - 1;
+          button.setAttribute('aria-label', `${translate(offset === 0 ? 'Move up' : 'Move down')} ${translate(navigationLabels[id])}`);
+          button.addEventListener('click', () => {
+            const nextIndex = index + (offset === 0 ? -1 : 1);
+            [navigationPreferences.order[index], navigationPreferences.order[nextIndex]] =
+              [navigationPreferences.order[nextIndex], navigationPreferences.order[index]];
+            applyNavigationPreferences();
+            renderNavigationSettings();
+          });
+          actions.append(button);
+        });
+        row.append(name, toggleWrap, actions);
+        return row;
+      });
+      list.replaceChildren(...rows);
+    }
+
+    function saveNavigationPreferences(preferences, successMessage) {
+      const saveButton = document.querySelector('#save-navigation');
+      saveButton.disabled = true;
+      navigationPreferences = {
+        order: [...preferences.order],
+        hidden: [...preferences.hidden]
+      };
+      const saved = writeDemoStorage('mrx-soc-demo-navigation', navigationPreferences);
+      applyNavigationPreferences();
+      renderNavigationSettings();
+      if (saved) showToast(successMessage);
+      saveButton.disabled = false;
+    }
+
+    function loadNavigationPreferences() {
+      const saved = readDemoStorage('mrx-soc-demo-navigation', null);
+      if (saved && Array.isArray(saved.order) && Array.isArray(saved.hidden)
+        && saved.order.length === defaultNavigation.length
+        && new Set(saved.order).size === defaultNavigation.length
+        && saved.order.every((id) => defaultNavigation.includes(id))
+        && saved.hidden.every((id) => defaultNavigation.includes(id) && id !== 'settings')) {
+        navigationPreferences = saved;
+      }
+      applyNavigationPreferences();
+    }
+
+    function refreshSiem() {
+      const button = document.querySelector('#refresh-siem');
+      button.disabled = true;
+      const alerts = demoSiemAlertSeed.map(({ minutesAgo, ...alert }) => ({
+        ...alert,
+        timestamp: new Date(Date.now() - minutesAgo * 60_000).toISOString()
+      }));
+      const providers = ['Wazuh', 'Splunk'].map((provider) => ({
+        provider,
+        status: 'demo',
+        checked_at: new Date().toISOString(),
+        latency_ms: null,
+        count: alerts.filter((alert) => alert.provider === provider).length
+      }));
+      siemAlertData = alerts;
+      renderSiemProviders(providers);
+      renderSiemAlerts(alerts);
+      document.querySelector('#siem-updated-at').textContent = currentLanguage === 'ar'
+        ? `بيانات تجريبية · ${formatSiemTime(new Date().toISOString())}`
+        : `Demo data · ${formatSiemTime(new Date().toISOString())}`;
+      button.disabled = false;
+    }
+
+    function filterIncidents() {
+      const severity = severityFilter.value;
+      const status = statusFilter.value;
+      const query = searchInput.value.trim().toLowerCase();
+      let visible = 0;
+      rows.forEach((row) => {
+        const matches = (severity === 'all' || row.dataset.severity === severity)
+          && (status === 'all' || row.dataset.status === status)
+          && (!query || row.dataset.search.includes(query));
+        row.hidden = !matches;
+        if (matches) visible += 1;
+      });
+      emptyRow.style.display = visible ? 'none' : 'block';
+    }
+    severityFilter.addEventListener('change', filterIncidents);
+    statusFilter.addEventListener('change', filterIncidents);
+    searchInput.addEventListener('input', filterIncidents);
+
+    const modal = document.querySelector('#incident-modal');
+    const titleInput = document.querySelector('#incident-form [name="title"]');
+    function openModal() {
+      modal.classList.add('open');
+      window.setTimeout(() => titleInput.focus(), 0);
+    }
+    function closeModal() {
+      modal.classList.remove('open');
+      document.querySelector('#create-incident').focus();
+    }
+    document.querySelector('#create-incident').addEventListener('click', openModal);
+    document.querySelector('#close-modal').addEventListener('click', closeModal);
+    document.querySelector('#cancel-modal').addEventListener('click', closeModal);
+    modal.addEventListener('click', (event) => { if (event.target === modal) closeModal(); });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && modal.classList.contains('open')) closeModal();
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        searchInput.focus();
+      }
+    });
+    document.querySelector('#incident-form').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const form = new FormData(event.currentTarget);
+      const submitButton = event.currentTarget.querySelector('button[type="submit"]');
+      submitButton.disabled = true;
+      try {
+        const highestId = incidentData.reduce((highest, incident) => {
+          const match = /^INC-(\d+)$/i.exec(incident.id);
+          return match ? Math.max(highest, Number(match[1])) : highest;
+        }, 0);
+        const now = new Date().toISOString();
+        const incident = {
+          id: `INC-${highestId + 1}`,
+          title: String(form.get('title')).trim(),
+          severity: String(form.get('severity')),
+          source: String(form.get('source')).trim() || 'Manual Report',
+          status: 'New',
+          technique: String(form.get('technique')).trim() || null,
+          description: String(form.get('description')).trim() || null,
+          created_at: now,
+          updated_at: now
+        };
+        incidentData.unshift(incident);
+        saveDemoIncidents();
+        const row = createIncidentRow(incident);
+        document.querySelector('#incident-rows').prepend(row);
+        rows.unshift(row);
+        document.querySelector('.nav-count').textContent = incidentData.length;
+        updateIncidentCount();
+        renderInvestigationViews();
+        event.currentTarget.reset();
+        closeModal();
+        filterIncidents();
+        showToast(currentLanguage === 'ar'
+          ? `تم إنشاء ${incident.id} في العرض التجريبي على هذا المتصفح`
+          : `${incident.id} created in this browser demo`);
+      } catch (error) {
+        console.error('Could not create the sample incident.', error);
+        showToast('Could not create the sample incident.', true);
+      } finally {
+        submitButton.disabled = false;
+      }
+    });
+
+    document.querySelector('#workspace-nav').addEventListener('click', (event) => {
+      const item = event.target.closest('.nav-item');
+      if (!item || item.hidden) return;
+      activatePage(item.dataset.nav);
+    });
+    document.querySelector('#language-toggle').addEventListener('click', () => {
+      setLanguage(currentLanguage === 'ar' ? 'en' : 'ar');
+    });
+    document.querySelector('#notification-button').addEventListener('click', () => showToast('You are all caught up on notifications'));
+    document.querySelector('#view-all').addEventListener('click', () => {
+      severityFilter.value = 'all'; statusFilter.value = 'all'; searchInput.value = ''; filterIncidents();
+      showToast('Showing all recent incidents');
+    });
+    document.querySelector('#intel-view').addEventListener('click', () => showToast('Threat intelligence feed is up to date'));
+    document.querySelector('#save-navigation').addEventListener('click', () => {
+      saveNavigationPreferences(navigationPreferences, 'Sidebar preferences saved');
+    });
+    document.querySelector('#reset-navigation').addEventListener('click', () => {
+      saveNavigationPreferences({ order: [...defaultNavigation], hidden: [] }, 'Default sidebar restored');
+    });
+    document.querySelector('#time-range').addEventListener('change', (event) => showToast(`Dashboard range updated: ${event.target.value}`));
+    document.querySelector('#incident-rows').addEventListener('click', (event) => {
+      const button = event.target.closest('.row-action');
+      if (!button) return;
+      const incidentId = button.closest('tr').querySelector('.incident-id').textContent;
+      const incident = incidentData.find((item) => item.id === incidentId);
+      if (!incident) {
+        showToast('Incident is not available in the demo data.', true);
+        return;
+      }
+      showToast(`${incident.id} · ${translate(incident.severity)} · ${translate(incident.status)} · ${incident.title}`);
+    });
+    function initializeDashboard() {
+      let demoSession;
+      try {
+        demoSession = localStorage.getItem('mrx-soc-demo-session');
+      } catch (error) {
+        console.error('Could not read the demo session from browser storage.', error);
+        window.location.replace('./login.html');
+        return;
+      }
+      if (demoSession !== 'active') {
+        window.location.replace('./login.html');
+        return;
+      }
+      loadNavigationPreferences();
+      loadIncidents();
+      loadThreatIndicators();
+      refreshSiem();
+    }
+
+    document.querySelector('#logout-button').addEventListener('click', () => {
+      try {
+        localStorage.removeItem('mrx-soc-demo-session');
+        window.location.replace('./login.html');
+      } catch (error) {
+        console.error('Could not exit demo mode.', error);
+        showToast('Could not exit demo mode.', true);
+      }
+    });
+
+    document.querySelector('#refresh-siem').addEventListener('click', refreshSiem);
+    window.setInterval(() => {
+      if (document.visibilityState === 'visible') refreshSiem();
+    }, 60_000);
+
+    applyTranslations();
+    applyNavigationPreferences();
+    activatePage('overview');
+    initializeDashboard();
+  </script>
+</body>
+</html>
